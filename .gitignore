@@ -1,0 +1,18 @@
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Build and test outputs and local data; the scripts recreate what they need
+artifacts/
+dist/
+.watest/
+
+# Third-party tools and installers (re-downloadable)
+tools/
+
+# MakeFlyEasy model files and files made from them are never committed.
+# scripts/build_sjarc_setup.py downloads the originals (pinned commit, SHA-256 checked) and
+# scripts/make-sitl-params.ps1 makes the kit parameter files from them.
+*.RFX
+*.rfx
+apps/SJARC-RealFlight-Setup/kit/*.param

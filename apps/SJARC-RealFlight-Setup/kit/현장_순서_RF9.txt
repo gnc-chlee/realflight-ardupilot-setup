@@ -1,0 +1,93 @@
+SJ-ARC 설치 도우미 v0.2.1 — RealFlight 9 현장 적용 순서
+(이 폴더 통째로 대상 PC 바탕화면에 복사해서 실행. 인터넷 없어도 됨)
+
+v0.1.4 핵심: RF 8/9는 모델 경로를 건드리지 않고 CH8~12 신호만 보정합니다.
+v0.1.2/v0.1.3로 경로 보정해서 FLY 시 크래시 나던 PC도 3번만 다시 누르면 복구됩니다(재Import 불필요).
+v0.1.5 추가: SITL 연결 중 RF가 '응답 없음'이 될 때 쓰는 '연결 문제 해결'(맨 아래 순서 참고).
+v0.2.0 화면: 왼쪽 단계 목록(1 대상 확인 → 2 모델 준비 → 3 RF에서 Import → 4 검사·패치 → 5 SITL 연결)을 위에서부터 따라가면 됨.
+            아래 상태 줄에 RealFlight Link · 일시정지 · 조종기 · SITL flightaxis 여부가 늘 표시됨.
+
+■ 시작 전
+1. RealFlight 9를 한 번 실행했다가 완전히 종료 (문서 폴더 생성용)
+2. RealFlight(9와 Evolution 모두), Mission Planner, SITL 종료
+3. 실제 비행 컨트롤러(USB/텔레메트리) 분리
+
+■ 도우미 실행
+4. SJARC-RealFlight-Setup.exe 실행 (보안 경고: 추가 정보 → 실행). 창 제목이 v0.2.1인지 확인
+5. 왼쪽 "1. 대상 확인"의 [RealFlight 실행 파일] 목록에서 "RealFlight 9 / 9.5 / 9.5S" 선택
+   ※ 목록에 없으면 [실행 파일 직접 선택] → RF9 설치 폴더의 RealFlight.exe 또는 RealFlight64.exe
+   ※ RF 9에서는 '모델·텍스처 경로 보정' 체크가 회색(사용 안 함)으로 바뀌는 것이 정상
+6. [사용자 문서 폴더]가 Documents\RealFlight 9 (또는 9.5) 인지 확인
+7. [다음: 모델 준비] → 기종 체크 (4종 모두 OK) → [모델 준비 / 기존 모델 패치] → 확인
+   → Import가 필요한 기종이 있으면 자동으로 "3. RF에서 Import" 화면으로 넘어가고 파일 목록이 나옴
+   → 이미 설치된 기종은 여기서 바로 신호 보정됨
+
+■ RealFlight 9에서 Import (IMPORT_REQUIRED 기종만, 기종마다 반복)
+   ※ 이미 설치된 기종은 다시 Import하지 말 것 (도우미 "4. 검사·패치"가 보정·복구함)
+8. [RealFlight 열기] → 먼저 MFE가 아닌 기본 기체(예: Piper Cub)를 선택해 둔 뒤
+   Simulation → Import → RealFlight Archive (RFX, G3X)
+   ※ MFE 기체가 선택된 채로 Import하면 "This battery is in use" 오류가 남
+     (4종이 같은 배터리 파일 LiPoly 20000 mah를 씀. 모터가 같은 기종끼리도 같은 오류)
+9. 문서\RealFlight 9\RFX\SJARC 폴더의 RFX 선택
+   ※ 끝에 "경로를 찾을 수 없습니다" 오류 창이 나오면 그냥 [확인] (무해)
+10. 다 가져왔으면 RealFlight 9 완전히 종료
+
+■ 보정
+11. 도우미에서 [Import 끝냄 → 다음] → "4. 검사·패치"의 [Import 후 검사·패치] → 확인
+    → "FILES_VERIFIED" 나오면 성공
+    → "RF 8/9 - shared asset paths ... replaced" 줄: 예전 경로 보정을 되돌렸다는 뜻 (정상)
+    → "확인 필요: Controller profile ... Dual Rates and Expo is on" 이 나오면 13번에서 끄기
+    → "확인 필요: Set manually ..." 가 나오면 12번에서 직접 설정
+
+■ RealFlight 9 설정 확인 (최초 1회)
+12. RF9 실행 → Simulation → Settings → Physics
+    RealFlight Link = Yes / Pause Sim When in Background = No /
+    Pause Sim When in Menu = No / Automatic Reset Delay = 2.0
+    (도우미가 INI에 적용함 — 화면에서 확인만. 바꿨다면 RF9 재시작)
+13. 사용할 조종기 설정에서 Software Radio Dual Rates and Expo = Off
+14. 기체 선택 → STRIVERminiVTOL / Pioneer / fighterVTOL / HERO2180 (원래 이름으로)
+    ※ Pioneer_KU처럼 다른 이름으로 저장한 사본은 패치되지 않고, 발사 방식(손 던지기)이 다를 수 있음
+    FLY 눌러서 크래시 없이 뜨는지 확인
+
+■ Mission Planner (SITL)
+15. RF에서 기체 선택 → 도우미 "5. SITL 연결"의 [SITL 시작 (flightaxis)] → Mission Planner가 스스로 연결됨
+    (MP 오른쪽 위 단추가 DISCONNECT로 바뀌면 연결된 것. 다시 누르지 말 것)
+    ※ MP의 Simulation 탭으로 직접 켤 때: Model = flightaxis → Plane 아이콘 → Stable (Wipe 체크 금지)
+    ※ flightaxis를 안 고르면 RF 기체는 넘어지는데 MP 화면은 그대로(배터리 12.60V 고정), 비행모드도 MANUAL·FBWA만 보임
+    RF9에서 스페이스바(리셋) → "FlightAxis Controller Device has been activated" 확인
+16. 파라미터는 직접 불러옴: CONFIG → Full Parameter List → Load from file → Write Params
+    Pioneer · Striver: 이 USB 폴더의 파일 하나만 불러오기
+      Pioneer_VTOL_RF_SITL.param  (모터 3·4 교체 포함)
+      Striver_VTOL_RF_SITL.param  (모터 3·4 교체 + 엘리베이터 반전 + VTOL 롤 P 0.2)
+      ※ 시뮬레이터 전용 파일. 실제 기체에는 쓰지 말 것
+      ※ 구버전(4.4.4)·신버전 이름이 함께 들어 있음. 불러올 때 "없는 파라미터"가 표시돼도 정상
+      ※ "Q_ASSIST_SPEED is not set"으로 아밍이 거부되면 파라미터 파일을 안 불러온 것 (파일 값 14)
+    Fighter · Hero: 제조사 param(문서\RealFlight 9\.SJARC\Parameters) → MFE_MotorMap_ONLY.param 순서
+      ※ 조종면 방향은 MANUAL에서 확인 (Fighter는 엘리베이터가 반대일 가능성 큼 → SERVO2_REVERSED=1)
+    FLTMODE_CH 를 조종기 모드 스위치 채널에 맞춤 (RF_SITL 파일은 이 값을 바꾸지 않음, 기본 8)
+    → SITL 재시작 후 Servo Output에서 9~12 = Motor1 / Motor2 / Motor4 / Motor3 확인
+    기종을 바꿀 때마다 그 기종 파일을 다시 불러옴
+
+■ 첫 확인 (DISARM 상태부터)
+17. DISARM 상태에서 모드 스위치·조종면 방향 확인
+18. QLOITER(또는 QHOVER) → Arm → 스로틀 살짝: RF9 화면에서 모터 4개가 같이 도는지
+    한쪽으로 뒤집히면 즉시 Disarm → 16번(SERVO11/12) 다시 확인
+
+■ SITL 연결 중 RF가 '응답 없음'이 되면 (도우미 왼쪽 아래 '연결 문제 해결')
+A. RF 창을 닫지 말고 먼저 ① 진단 보고서 만들기 → 메모장이 열림. SITL 검은 창을 휴대폰으로 촬영
+   (검은 창에 "Starting controller"가 계속 반복되는지 확인)
+B. RF·MP 닫기(응답 없음이면 작업 관리자에서 끝내기) → ② 남은 SITL 창 종료
+   켜는 순서: RF 실행 → 기체 선택 → 도우미 [SITL 시작] (또는 MP Simulation) / 끄는 순서: SITL·MP 먼저, RF 마지막
+   진단 보고서에 'Reset 기능에 지정된 조종기 입력'이 나오면 그 스위치를 끈 상태로 둠
+   RF 기체는 넘어지는데 MP 화면이 그대로(배터리 12.60V 고정)면 SITL이 RF에 안 붙은 것 → MP Simulation의 Model = flightaxis 확인
+C. 계속 멈추면 모두 닫고 ③ SITL 저장 설정 초기화 → 파라미터 넣기 전에 연결만 먼저 확인
+   · 초기화 직후에도 멈춤 → D로
+   · 초기화 직후엔 되고, param Load·Write 후 SITL 재시작 때 멈춤 → 파라미터 원인. ①을 다시 만들어 보냄
+D. 계속 멈추면 ④ RealFlight 설정 초기화 → RF 실행 → 조종기 선택·보정 → Physics 4개 다시 설정(12번) → RF 재시작 → 확인
+E. 그래도 안 되면 'RF 설정 되돌리기', 'SITL 설정 되돌리기' → ①의 zip(보고서 폴더)과 사진을 보냄
+   ※ ③④와 되돌리기는 RF·MP·SITL이 모두 꺼져 있어야 실행됨. 파일은 지우지 않고 옮김
+
+■ 주의
+- RealFlight 9와 Evolution을 동시에 켜지 말 것 (둘 다 FlightAxis 18083 포트 사용)
+- 도우미는 RF·MP·SITL이 켜져 있으면 파일을 쓰지 않음 (먼저 모두 종료)
+- 문제 생기면 도우미 "4. 검사·패치"의 [작업 보고서 폴더] 내용을 보관 (백업은 문서\RealFlight 9\.SJARC\Backups)

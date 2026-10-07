@@ -1,0 +1,1103 @@
+{
+  "source_commit": "e93e185d4e22df48d6791fe45103b593f168946a",
+  "source_pr": "https://github.com/ArduPilot/SITL_Models/pull/158",
+  "inspection": "Static archive analysis; receiver channels traced through signal IDs to propeller frame names",
+  "scope": "No live recipient RF 9.5/9.5S four-model flight validation",
+  "models": [
+    {
+      "file": "MFE_Fighter_VTOL/fighterVTOL.rfvehicle",
+      "radio": [
+        {
+          "channel": "#1",
+          "trim": "FLOAT:0.",
+          "input_count": "INTARRAY:1~",
+          "inputs": [
+            "INT:100"
+          ]
+        },
+        {
+          "channel": "#2",
+          "trim": "FLOAT:0.",
+          "input_count": "INTARRAY:1~",
+          "inputs": [
+            "INT:101"
+          ]
+        },
+        {
+          "channel": "#3",
+          "trim": "FLOAT:0.",
+          "input_count": "INTARRAY:1~",
+          "inputs": [
+            "INT:102"
+          ]
+        },
+        {
+          "channel": "#4",
+          "trim": "FLOAT:0.",
+          "input_count": "INTARRAY:1~",
+          "inputs": [
+            "INT:103"
+          ]
+        },
+        {
+          "channel": "#5",
+          "trim": "FLOAT:0.",
+          "input_count": "INTARRAY:1~",
+          "inputs": [
+            "INT:104"
+          ]
+        },
+        {
+          "channel": "#6",
+          "trim": "FLOAT:0.",
+          "input_count": "INTARRAY:1~2~",
+          "inputs": [
+            "INT:105",
+            "INT:106"
+          ]
+        },
+        {
+          "channel": "#7",
+          "trim": "FLOAT:0.",
+          "input_count": "INTARRAY:1~",
+          "inputs": [
+            "INT:106"
+          ]
+        },
+        {
+          "channel": "#8",
+          "trim": "FLOAT:0.",
+          "input_count": "INTARRAY:",
+          "inputs": []
+        },
+        {
+          "channel": "#9",
+          "trim": "FLOAT:1.",
+          "input_count": "INTARRAY:",
+          "inputs": []
+        },
+        {
+          "channel": "#10",
+          "trim": "FLOAT:1.",
+          "input_count": "INTARRAY:",
+          "inputs": []
+        },
+        {
+          "channel": "#11",
+          "trim": "FLOAT:1.",
+          "input_count": "INTARRAY:",
+          "inputs": []
+        },
+        {
+          "channel": "#12",
+          "trim": "FLOAT:1.",
+          "input_count": "INTARRAY:",
+          "inputs": []
+        }
+      ],
+      "motors": [
+        {
+          "line": 962,
+          "component": "STRING:ENGINE_FL",
+          "frame": "STRING:~CS_ENGINE_FL",
+          "signal": "119",
+          "rx": "INT:12",
+          "label": "STRING:MOTOR FL",
+          "clockwise": "BOOL:No",
+          "reversed": "BOOL:No",
+          "brake": "BOOL:Yes"
+        },
+        {
+          "line": 1068,
+          "component": "STRING:ENGINE_RL",
+          "frame": "STRING:~CS_ENGINE_RL",
+          "signal": "121",
+          "rx": "INT:10",
+          "label": "STRING:MOTOR RL",
+          "clockwise": "BOOL:Yes",
+          "reversed": "BOOL:No",
+          "brake": "BOOL:Yes"
+        },
+        {
+          "line": 1211,
+          "component": "STRING:ENGINE_RR",
+          "frame": "STRING:~CS_ENGINE_RR",
+          "signal": "123",
+          "rx": "INT:11",
+          "label": "STRING:MOTOR RR",
+          "clockwise": "BOOL:No",
+          "reversed": "BOOL:No",
+          "brake": "BOOL:Yes"
+        },
+        {
+          "line": 1317,
+          "component": "STRING:ENGINE_FR",
+          "frame": "STRING:~CS_ENGINE_FR",
+          "signal": "122",
+          "rx": "INT:9",
+          "label": "STRING:MOTOR FR",
+          "clockwise": "BOOL:Yes",
+          "reversed": "BOOL:No",
+          "brake": "BOOL:Yes"
+        },
+        {
+          "line": 1595,
+          "component": "STRING:Engine",
+          "frame": "STRING:~CS_ENGINE_P",
+          "signal": "104",
+          "rx": "INT:3",
+          "label": "STRING:Throttle Servo",
+          "clockwise": "BOOL:Yes",
+          "reversed": "BOOL:No",
+          "brake": "BOOL:No"
+        }
+      ],
+      "surfaces": [
+        {
+          "ServoMaster": "INT:100",
+          "ServoMasterRev": "BOOL:Yes",
+          "ServoSlave": "INT:100"
+        },
+        {
+          "ServoMaster": "INT:102",
+          "ServoMasterRev": "BOOL:No",
+          "ServoSlave": "INT:102",
+          "ServoSlaveRev": "BOOL:No"
+        },
+        {
+          "ServoMaster": "INT:103",
+          "ServoMasterRev": "BOOL:No",
+          "ServoSlave": "INT:103",
+          "ServoSlaveRev": "BOOL:No"
+        }
+      ],
+      "electronics": {
+        "#100": {
+          "ConnectTo_InternalName": "INT:1",
+          "ServoType": "INT:1",
+          "Speed": "FLOAT:0.11",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:Aileron Servo",
+          "Volume": "FLOAT:1."
+        },
+        "#102": {
+          "ConnectTo_InternalName": "INT:2",
+          "ServoType": "INT:1",
+          "Speed": "FLOAT:0.11",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:Elevator Servo",
+          "Volume": "FLOAT:1."
+        },
+        "#103": {
+          "ConnectTo_InternalName": "INT:4",
+          "ServoType": "INT:1",
+          "Speed": "FLOAT:0.11",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:Rudder Servo",
+          "Volume": "FLOAT:1."
+        },
+        "#104": {
+          "ConnectTo_InternalName": "INT:3",
+          "ServoType": "INT:0",
+          "Speed": "FLOAT:0.11",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:Throttle Servo",
+          "Volume": "FLOAT:0."
+        },
+        "#119": {
+          "ConnectTo_InternalName": "INT:12",
+          "ServoType": "INT:1",
+          "Speed": "FLOAT:0.1",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:MOTOR FL",
+          "Volume": "FLOAT:0."
+        },
+        "#121": {
+          "ConnectTo_InternalName": "INT:10",
+          "ServoType": "INT:1",
+          "Speed": "FLOAT:0.1",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:MOTOR RL",
+          "Volume": "FLOAT:0."
+        },
+        "#122": {
+          "ConnectTo_InternalName": "INT:9",
+          "ServoType": "INT:1",
+          "Speed": "FLOAT:0.1",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:MOTOR FR",
+          "Volume": "FLOAT:0."
+        },
+        "#123": {
+          "ConnectTo_InternalName": "INT:11",
+          "ServoType": "INT:1",
+          "Speed": "FLOAT:0.1",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:MOTOR RR",
+          "Volume": "FLOAT:0."
+        },
+        "#124": {
+          "ConnectTo_InternalName": "INT:5",
+          "ServoType": "INT:1",
+          "Speed": "FLOAT:0.1",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:Servo",
+          "Volume": "FLOAT:0."
+        }
+      },
+      "rfvehicle_sha256": "34d330637b2f327f6dd8f94e9a9750f34a215f09e2f493fffebd1710c5c9572b",
+      "sources": [
+        {
+          "file": "fighterVTOL_EA.RFX",
+          "sha256": "9b0804ec1c4432de3965f005f341f44a1f1a4e3c4ded38f7bc8cb2385d5dd313",
+          "url": "https://raw.githubusercontent.com/ArduPilot/SITL_Models/e93e185d4e22df48d6791fe45103b593f168946a/RealFlight/Released_Models/QuadPlanes/MFE_Fighter_VTOL/fighterVTOL_EA.RFX"
+        },
+        {
+          "file": "Fighter_VTOL_V4.4.4.param",
+          "sha256": "bc938fea362067ccdfd86b55d31f4b03c8ef266678f20974e4600116c288e49f",
+          "url": "https://raw.githubusercontent.com/ArduPilot/SITL_Models/e93e185d4e22df48d6791fe45103b593f168946a/RealFlight/Released_Models/QuadPlanes/MFE_Fighter_VTOL/Fighter_VTOL_V4.4.4.param"
+        }
+      ],
+      "original_servo_functions": {
+        "SERVO1_FUNCTION": "4",
+        "SERVO2_FUNCTION": "19",
+        "SERVO3_FUNCTION": "70",
+        "SERVO4_FUNCTION": "21",
+        "SERVO5_FUNCTION": "4",
+        "SERVO6_FUNCTION": "19",
+        "SERVO9_FUNCTION": "33",
+        "SERVO10_FUNCTION": "34",
+        "SERVO11_FUNCTION": "35",
+        "SERVO12_FUNCTION": "36"
+      },
+      "required_overlay": {
+        "SERVO9_FUNCTION": 33,
+        "SERVO10_FUNCTION": 34,
+        "SERVO11_FUNCTION": 36,
+        "SERVO12_FUNCTION": 35
+      }
+    },
+    {
+      "file": "MFE_Hero_VTOL/HERO2180.rfvehicle",
+      "radio": [
+        {
+          "channel": "#1",
+          "trim": "FLOAT:0.",
+          "input_count": "INTARRAY:1~",
+          "inputs": [
+            "INT:100"
+          ]
+        },
+        {
+          "channel": "#2",
+          "trim": "FLOAT:0.",
+          "input_count": "INTARRAY:1~",
+          "inputs": [
+            "INT:101"
+          ]
+        },
+        {
+          "channel": "#3",
+          "trim": "FLOAT:0.",
+          "input_count": "INTARRAY:1~",
+          "inputs": [
+            "INT:102"
+          ]
+        },
+        {
+          "channel": "#4",
+          "trim": "FLOAT:0.",
+          "input_count": "INTARRAY:1~",
+          "inputs": [
+            "INT:103"
+          ]
+        },
+        {
+          "channel": "#5",
+          "trim": "FLOAT:0.",
+          "input_count": "INTARRAY:1~",
+          "inputs": [
+            "INT:104"
+          ]
+        },
+        {
+          "channel": "#6",
+          "trim": "FLOAT:0.",
+          "input_count": "INTARRAY:1~2~",
+          "inputs": [
+            "INT:105",
+            "INT:106"
+          ]
+        },
+        {
+          "channel": "#7",
+          "trim": "FLOAT:0.",
+          "input_count": "INTARRAY:1~",
+          "inputs": [
+            "INT:106"
+          ]
+        },
+        {
+          "channel": "#8",
+          "trim": "FLOAT:0.",
+          "input_count": "INTARRAY:",
+          "inputs": []
+        },
+        {
+          "channel": "#9",
+          "trim": "FLOAT:1.",
+          "input_count": "INTARRAY:",
+          "inputs": []
+        },
+        {
+          "channel": "#10",
+          "trim": "FLOAT:1.",
+          "input_count": "INTARRAY:",
+          "inputs": []
+        },
+        {
+          "channel": "#11",
+          "trim": "FLOAT:1.",
+          "input_count": "INTARRAY:",
+          "inputs": []
+        },
+        {
+          "channel": "#12",
+          "trim": "FLOAT:1.",
+          "input_count": "INTARRAY:",
+          "inputs": []
+        }
+      ],
+      "motors": [
+        {
+          "line": 962,
+          "component": "STRING:ENGINE_FL",
+          "frame": "STRING:~CS_ENGINE_FL",
+          "signal": "119",
+          "rx": "INT:12",
+          "label": "STRING:MOTOR FL",
+          "clockwise": "BOOL:No",
+          "reversed": "BOOL:No",
+          "brake": "BOOL:Yes"
+        },
+        {
+          "line": 1068,
+          "component": "STRING:ENGINE_RL",
+          "frame": "STRING:~CS_ENGINE_RL",
+          "signal": "121",
+          "rx": "INT:10",
+          "label": "STRING:MOTOR RL",
+          "clockwise": "BOOL:Yes",
+          "reversed": "BOOL:No",
+          "brake": "BOOL:Yes"
+        },
+        {
+          "line": 1211,
+          "component": "STRING:ENGINE_RR",
+          "frame": "STRING:~CS_ENGINE_RR",
+          "signal": "123",
+          "rx": "INT:11",
+          "label": "STRING:MOTOR RR",
+          "clockwise": "BOOL:No",
+          "reversed": "BOOL:No",
+          "brake": "BOOL:Yes"
+        },
+        {
+          "line": 1317,
+          "component": "STRING:ENGINE_FR",
+          "frame": "STRING:~CS_ENGINE_FR",
+          "signal": "122",
+          "rx": "INT:9",
+          "label": "STRING:MOTOR FR",
+          "clockwise": "BOOL:Yes",
+          "reversed": "BOOL:No",
+          "brake": "BOOL:Yes"
+        },
+        {
+          "line": 1765,
+          "component": "STRING:Engine",
+          "frame": "STRING:~CS_ENGINE_P",
+          "signal": "104",
+          "rx": "INT:3",
+          "label": "STRING:Throttle Servo",
+          "clockwise": "BOOL:Yes",
+          "reversed": "BOOL:No",
+          "brake": "BOOL:No"
+        }
+      ],
+      "surfaces": [
+        {
+          "ServoMaster": "INT:100",
+          "ServoMasterRev": "BOOL:Yes",
+          "ServoSlave": "INT:100"
+        },
+        {
+          "ServoMaster": "INT:102",
+          "ServoMasterRev": "BOOL:No",
+          "ServoSlave": "INT:102",
+          "ServoSlaveRev": "BOOL:No"
+        },
+        {
+          "ServoMaster": "INT:103",
+          "ServoMasterRev": "BOOL:No",
+          "ServoSlave": "INT:103",
+          "ServoSlaveRev": "BOOL:No"
+        }
+      ],
+      "electronics": {
+        "#100": {
+          "ConnectTo_InternalName": "INT:1",
+          "ServoType": "INT:1",
+          "Speed": "FLOAT:0.11",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:Aileron Servo",
+          "Volume": "FLOAT:1."
+        },
+        "#102": {
+          "ConnectTo_InternalName": "INT:2",
+          "ServoType": "INT:1",
+          "Speed": "FLOAT:0.11",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:Elevator Servo",
+          "Volume": "FLOAT:1."
+        },
+        "#103": {
+          "ConnectTo_InternalName": "INT:4",
+          "ServoType": "INT:1",
+          "Speed": "FLOAT:0.11",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:Rudder Servo",
+          "Volume": "FLOAT:1."
+        },
+        "#104": {
+          "ConnectTo_InternalName": "INT:3",
+          "ServoType": "INT:0",
+          "Speed": "FLOAT:0.11",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:Throttle Servo",
+          "Volume": "FLOAT:0."
+        },
+        "#119": {
+          "ConnectTo_InternalName": "INT:12",
+          "ServoType": "INT:1",
+          "Speed": "FLOAT:0.1",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:MOTOR FL",
+          "Volume": "FLOAT:0."
+        },
+        "#121": {
+          "ConnectTo_InternalName": "INT:10",
+          "ServoType": "INT:1",
+          "Speed": "FLOAT:0.1",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:MOTOR RL",
+          "Volume": "FLOAT:0."
+        },
+        "#122": {
+          "ConnectTo_InternalName": "INT:9",
+          "ServoType": "INT:1",
+          "Speed": "FLOAT:0.1",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:MOTOR FR",
+          "Volume": "FLOAT:0."
+        },
+        "#123": {
+          "ConnectTo_InternalName": "INT:11",
+          "ServoType": "INT:1",
+          "Speed": "FLOAT:0.1",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:MOTOR RR",
+          "Volume": "FLOAT:0."
+        },
+        "#124": {
+          "ConnectTo_InternalName": "INT:5",
+          "ServoType": "INT:1",
+          "Speed": "FLOAT:0.1",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:Servo",
+          "Volume": "FLOAT:0."
+        }
+      },
+      "rfvehicle_sha256": "e86e684c0600d5d3777a713a91681c04c7445d9efaea50c152b7c5c206318b08",
+      "sources": [
+        {
+          "file": "HERO_EA.RFX",
+          "sha256": "77b92dc9b6c2b3755fdbc2d9783c7950915891c92ee135ad2fd856051ead22ff",
+          "url": "https://raw.githubusercontent.com/ArduPilot/SITL_Models/e93e185d4e22df48d6791fe45103b593f168946a/RealFlight/Released_Models/QuadPlanes/MFE_Hero_VTOL/HERO_EA.RFX"
+        },
+        {
+          "file": "Hero_VTOL_V4.4.4.param",
+          "sha256": "dd7c7405275548cb80e3755ef94c0589b6a57d923e3068fcb1c8ce4b1189a887",
+          "url": "https://raw.githubusercontent.com/ArduPilot/SITL_Models/e93e185d4e22df48d6791fe45103b593f168946a/RealFlight/Released_Models/QuadPlanes/MFE_Hero_VTOL/Hero_VTOL_V4.4.4.param"
+        }
+      ],
+      "original_servo_functions": {
+        "SERVO1_FUNCTION": "4",
+        "SERVO2_FUNCTION": "79",
+        "SERVO3_FUNCTION": "70",
+        "SERVO4_FUNCTION": "80",
+        "SERVO5_FUNCTION": "4",
+        "SERVO6_FUNCTION": "0",
+        "SERVO7_FUNCTION": "0",
+        "SERVO8_FUNCTION": "0",
+        "SERVO9_FUNCTION": "33",
+        "SERVO10_FUNCTION": "34",
+        "SERVO11_FUNCTION": "35",
+        "SERVO12_FUNCTION": "36"
+      },
+      "required_overlay": {
+        "SERVO9_FUNCTION": 33,
+        "SERVO10_FUNCTION": 34,
+        "SERVO11_FUNCTION": 36,
+        "SERVO12_FUNCTION": 35
+      }
+    },
+    {
+      "file": "MFE_Pioneer_VTOL/Pioneer.rfvehicle",
+      "radio": [
+        {
+          "channel": "#1",
+          "trim": "FLOAT:0.",
+          "input_count": "INTARRAY:1~",
+          "inputs": [
+            "INT:100"
+          ]
+        },
+        {
+          "channel": "#2",
+          "trim": "FLOAT:0.",
+          "input_count": "INTARRAY:1~",
+          "inputs": [
+            "INT:101"
+          ]
+        },
+        {
+          "channel": "#3",
+          "trim": "FLOAT:0.",
+          "input_count": "INTARRAY:1~",
+          "inputs": [
+            "INT:102"
+          ]
+        },
+        {
+          "channel": "#4",
+          "trim": "FLOAT:0.",
+          "input_count": "INTARRAY:1~",
+          "inputs": [
+            "INT:103"
+          ]
+        },
+        {
+          "channel": "#5",
+          "trim": "FLOAT:0.",
+          "input_count": "INTARRAY:1~",
+          "inputs": [
+            "INT:104"
+          ]
+        },
+        {
+          "channel": "#6",
+          "trim": "FLOAT:0.",
+          "input_count": "INTARRAY:1~2~",
+          "inputs": [
+            "INT:105",
+            "INT:106"
+          ]
+        },
+        {
+          "channel": "#7",
+          "trim": "FLOAT:0.",
+          "input_count": "INTARRAY:1~",
+          "inputs": [
+            "INT:106"
+          ]
+        },
+        {
+          "channel": "#8",
+          "trim": "FLOAT:0.",
+          "input_count": "INTARRAY:",
+          "inputs": []
+        },
+        {
+          "channel": "#9",
+          "trim": "FLOAT:1.",
+          "input_count": "INTARRAY:",
+          "inputs": []
+        },
+        {
+          "channel": "#10",
+          "trim": "FLOAT:1.",
+          "input_count": "INTARRAY:",
+          "inputs": []
+        },
+        {
+          "channel": "#11",
+          "trim": "FLOAT:1.",
+          "input_count": "INTARRAY:",
+          "inputs": []
+        },
+        {
+          "channel": "#12",
+          "trim": "FLOAT:1.",
+          "input_count": "INTARRAY:",
+          "inputs": []
+        }
+      ],
+      "motors": [
+        {
+          "line": 962,
+          "component": "STRING:ENGINE_FL",
+          "frame": "STRING:~CS_ENGINE_FL",
+          "signal": "119",
+          "rx": "INT:12",
+          "label": "STRING:MOTOR FL",
+          "clockwise": "BOOL:No",
+          "reversed": "BOOL:No",
+          "brake": "BOOL:Yes"
+        },
+        {
+          "line": 1068,
+          "component": "STRING:ENGINE_RL",
+          "frame": "STRING:~CS_ENGINE_RL",
+          "signal": "121",
+          "rx": "INT:10",
+          "label": "STRING:MOTOR RL",
+          "clockwise": "BOOL:Yes",
+          "reversed": "BOOL:No",
+          "brake": "BOOL:Yes"
+        },
+        {
+          "line": 1211,
+          "component": "STRING:ENGINE_RR",
+          "frame": "STRING:~CS_ENGINE_RR",
+          "signal": "123",
+          "rx": "INT:11",
+          "label": "STRING:MOTOR RR",
+          "clockwise": "BOOL:No",
+          "reversed": "BOOL:No",
+          "brake": "BOOL:Yes"
+        },
+        {
+          "line": 1317,
+          "component": "STRING:ENGINE_FR",
+          "frame": "STRING:~CS_ENGINE_FR",
+          "signal": "122",
+          "rx": "INT:9",
+          "label": "STRING:MOTOR FR",
+          "clockwise": "BOOL:Yes",
+          "reversed": "BOOL:No",
+          "brake": "BOOL:Yes"
+        },
+        {
+          "line": 1659,
+          "component": "STRING:Engine",
+          "frame": "STRING:~CS_ENGINE_P",
+          "signal": "104",
+          "rx": "INT:3",
+          "label": "STRING:Throttle Servo",
+          "clockwise": "BOOL:Yes",
+          "reversed": "BOOL:No",
+          "brake": "BOOL:No"
+        }
+      ],
+      "surfaces": [
+        {
+          "ServoMaster": "INT:100",
+          "ServoMasterRev": "BOOL:Yes",
+          "ServoSlave": "INT:100"
+        },
+        {
+          "ServoMaster": "INT:102",
+          "ServoMasterRev": "BOOL:Yes",
+          "ServoSlave": "INT:102",
+          "ServoSlaveRev": "BOOL:No"
+        },
+        {
+          "ServoMaster": "INT:103",
+          "ServoMasterRev": "BOOL:No",
+          "ServoSlave": "INT:103",
+          "ServoSlaveRev": "BOOL:No"
+        }
+      ],
+      "electronics": {
+        "#100": {
+          "ConnectTo_InternalName": "INT:1",
+          "ServoType": "INT:1",
+          "Speed": "FLOAT:0.11",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:Aileron Servo",
+          "Volume": "FLOAT:1."
+        },
+        "#102": {
+          "ConnectTo_InternalName": "INT:2",
+          "ServoType": "INT:1",
+          "Speed": "FLOAT:0.11",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:Elevator Servo",
+          "Volume": "FLOAT:1."
+        },
+        "#103": {
+          "ConnectTo_InternalName": "INT:4",
+          "ServoType": "INT:1",
+          "Speed": "FLOAT:0.11",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:Rudder Servo",
+          "Volume": "FLOAT:1."
+        },
+        "#104": {
+          "ConnectTo_InternalName": "INT:3",
+          "ServoType": "INT:0",
+          "Speed": "FLOAT:0.11",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:Throttle Servo",
+          "Volume": "FLOAT:0."
+        },
+        "#119": {
+          "ConnectTo_InternalName": "INT:12",
+          "ServoType": "INT:1",
+          "Speed": "FLOAT:0.1",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:MOTOR FL",
+          "Volume": "FLOAT:0."
+        },
+        "#121": {
+          "ConnectTo_InternalName": "INT:10",
+          "ServoType": "INT:1",
+          "Speed": "FLOAT:0.1",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:MOTOR RL",
+          "Volume": "FLOAT:0."
+        },
+        "#122": {
+          "ConnectTo_InternalName": "INT:9",
+          "ServoType": "INT:1",
+          "Speed": "FLOAT:0.1",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:MOTOR FR",
+          "Volume": "FLOAT:0."
+        },
+        "#123": {
+          "ConnectTo_InternalName": "INT:11",
+          "ServoType": "INT:1",
+          "Speed": "FLOAT:0.1",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:MOTOR RR",
+          "Volume": "FLOAT:0."
+        },
+        "#124": {
+          "ConnectTo_InternalName": "INT:5",
+          "ServoType": "INT:1",
+          "Speed": "FLOAT:0.1",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:Servo",
+          "Volume": "FLOAT:0."
+        }
+      },
+      "rfvehicle_sha256": "c1228235764501355754a0362b4a9638a7278853859560d576842fc4dde1ded4",
+      "sources": [
+        {
+          "file": "Pioneer_EA.RFX",
+          "sha256": "b6fcb848e7d58bcda30beed7e8e773398fc31d57a561c41d97535eb2ccc7e649",
+          "url": "https://raw.githubusercontent.com/ArduPilot/SITL_Models/e93e185d4e22df48d6791fe45103b593f168946a/RealFlight/Released_Models/QuadPlanes/MFE_Pioneer_VTOL/Pioneer_EA.RFX"
+        },
+        {
+          "file": "Pioneer_VTOL_V4.4.4.param",
+          "sha256": "c031190cdb40fd1719cd1c83142eed12df396d467a40e1a2dd8f0e05d938f828",
+          "url": "https://raw.githubusercontent.com/ArduPilot/SITL_Models/e93e185d4e22df48d6791fe45103b593f168946a/RealFlight/Released_Models/QuadPlanes/MFE_Pioneer_VTOL/Pioneer_VTOL_V4.4.4.param"
+        }
+      ],
+      "original_servo_functions": {
+        "SERVO1_FUNCTION": "4",
+        "SERVO2_FUNCTION": "19",
+        "SERVO3_FUNCTION": "70",
+        "SERVO4_FUNCTION": "21",
+        "SERVO5_FUNCTION": "4",
+        "SERVO6_FUNCTION": "19",
+        "SERVO9_FUNCTION": "33",
+        "SERVO10_FUNCTION": "34",
+        "SERVO11_FUNCTION": "35",
+        "SERVO12_FUNCTION": "36"
+      },
+      "required_overlay": {
+        "SERVO9_FUNCTION": 33,
+        "SERVO10_FUNCTION": 34,
+        "SERVO11_FUNCTION": 36,
+        "SERVO12_FUNCTION": 35
+      }
+    },
+    {
+      "file": "MFE_Striver_mini_VTOL/STRIVERminiVTOL.rfvehicle",
+      "radio": [
+        {
+          "channel": "#1",
+          "trim": "FLOAT:0.",
+          "input_count": "INTARRAY:1~",
+          "inputs": [
+            "INT:100"
+          ]
+        },
+        {
+          "channel": "#2",
+          "trim": "FLOAT:0.",
+          "input_count": "INTARRAY:1~",
+          "inputs": [
+            "INT:101"
+          ]
+        },
+        {
+          "channel": "#3",
+          "trim": "FLOAT:0.",
+          "input_count": "INTARRAY:1~",
+          "inputs": [
+            "INT:102"
+          ]
+        },
+        {
+          "channel": "#4",
+          "trim": "FLOAT:0.",
+          "input_count": "INTARRAY:1~",
+          "inputs": [
+            "INT:103"
+          ]
+        },
+        {
+          "channel": "#5",
+          "trim": "FLOAT:0.",
+          "input_count": "INTARRAY:1~",
+          "inputs": [
+            "INT:104"
+          ]
+        },
+        {
+          "channel": "#6",
+          "trim": "FLOAT:0.",
+          "input_count": "INTARRAY:1~2~",
+          "inputs": [
+            "INT:105",
+            "INT:106"
+          ]
+        },
+        {
+          "channel": "#7",
+          "trim": "FLOAT:0.",
+          "input_count": "INTARRAY:1~",
+          "inputs": [
+            "INT:106"
+          ]
+        },
+        {
+          "channel": "#8",
+          "trim": "FLOAT:0.",
+          "input_count": "INTARRAY:",
+          "inputs": []
+        },
+        {
+          "channel": "#9",
+          "trim": "FLOAT:1.",
+          "input_count": "INTARRAY:",
+          "inputs": []
+        },
+        {
+          "channel": "#10",
+          "trim": "FLOAT:1.",
+          "input_count": "INTARRAY:",
+          "inputs": []
+        },
+        {
+          "channel": "#11",
+          "trim": "FLOAT:1.",
+          "input_count": "INTARRAY:",
+          "inputs": []
+        },
+        {
+          "channel": "#12",
+          "trim": "FLOAT:1.",
+          "input_count": "INTARRAY:",
+          "inputs": []
+        }
+      ],
+      "motors": [
+        {
+          "line": 962,
+          "component": "STRING:ENGINE_FL",
+          "frame": "STRING:~CS_ENGINE_FL",
+          "signal": "119",
+          "rx": "INT:12",
+          "label": "STRING:MOTOR FL",
+          "clockwise": "BOOL:No",
+          "reversed": "BOOL:No",
+          "brake": "BOOL:Yes"
+        },
+        {
+          "line": 1068,
+          "component": "STRING:ENGINE_RL",
+          "frame": "STRING:~CS_ENGINE_RL",
+          "signal": "121",
+          "rx": "INT:10",
+          "label": "STRING:MOTOR RL",
+          "clockwise": "BOOL:Yes",
+          "reversed": "BOOL:No",
+          "brake": "BOOL:Yes"
+        },
+        {
+          "line": 1211,
+          "component": "STRING:ENGINE_RR",
+          "frame": "STRING:~CS_ENGINE_RR",
+          "signal": "123",
+          "rx": "INT:11",
+          "label": "STRING:MOTOR RR",
+          "clockwise": "BOOL:No",
+          "reversed": "BOOL:No",
+          "brake": "BOOL:Yes"
+        },
+        {
+          "line": 1317,
+          "component": "STRING:ENGINE_FR",
+          "frame": "STRING:~CS_ENGINE_FR",
+          "signal": "122",
+          "rx": "INT:9",
+          "label": "STRING:MOTOR FR",
+          "clockwise": "BOOL:Yes",
+          "reversed": "BOOL:No",
+          "brake": "BOOL:Yes"
+        },
+        {
+          "line": 1595,
+          "component": "STRING:Engine",
+          "frame": "STRING:~CS_ENGINE_P",
+          "signal": "104",
+          "rx": "INT:3",
+          "label": "STRING:Throttle Servo",
+          "clockwise": "BOOL:Yes",
+          "reversed": "BOOL:No",
+          "brake": "BOOL:No"
+        }
+      ],
+      "surfaces": [
+        {
+          "ServoMaster": "INT:100",
+          "ServoMasterRev": "BOOL:Yes",
+          "ServoSlave": "INT:100"
+        },
+        {
+          "ServoMaster": "INT:102",
+          "ServoMasterRev": "BOOL:No",
+          "ServoSlave": "INT:102",
+          "ServoSlaveRev": "BOOL:No"
+        },
+        {
+          "ServoMaster": "INT:103",
+          "ServoMasterRev": "BOOL:No",
+          "ServoSlave": "INT:103",
+          "ServoSlaveRev": "BOOL:No"
+        }
+      ],
+      "electronics": {
+        "#100": {
+          "ConnectTo_InternalName": "INT:1",
+          "ServoType": "INT:1",
+          "Speed": "FLOAT:0.11",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:Aileron Servo",
+          "Volume": "FLOAT:1."
+        },
+        "#102": {
+          "ConnectTo_InternalName": "INT:2",
+          "ServoType": "INT:1",
+          "Speed": "FLOAT:0.11",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:Elevator Servo",
+          "Volume": "FLOAT:1."
+        },
+        "#103": {
+          "ConnectTo_InternalName": "INT:4",
+          "ServoType": "INT:1",
+          "Speed": "FLOAT:0.11",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:Rudder Servo",
+          "Volume": "FLOAT:1."
+        },
+        "#104": {
+          "ConnectTo_InternalName": "INT:3",
+          "ServoType": "INT:0",
+          "Speed": "FLOAT:0.11",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:Throttle Servo",
+          "Volume": "FLOAT:0."
+        },
+        "#119": {
+          "ConnectTo_InternalName": "INT:12",
+          "ServoType": "INT:1",
+          "Speed": "FLOAT:0.1",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:MOTOR FL",
+          "Volume": "FLOAT:0."
+        },
+        "#121": {
+          "ConnectTo_InternalName": "INT:10",
+          "ServoType": "INT:1",
+          "Speed": "FLOAT:0.1",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:MOTOR RL",
+          "Volume": "FLOAT:0."
+        },
+        "#122": {
+          "ConnectTo_InternalName": "INT:9",
+          "ServoType": "INT:1",
+          "Speed": "FLOAT:0.1",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:MOTOR FR",
+          "Volume": "FLOAT:0."
+        },
+        "#123": {
+          "ConnectTo_InternalName": "INT:11",
+          "ServoType": "INT:1",
+          "Speed": "FLOAT:0.1",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:MOTOR RR",
+          "Volume": "FLOAT:0."
+        },
+        "#124": {
+          "ConnectTo_InternalName": "INT:5",
+          "ServoType": "INT:1",
+          "Speed": "FLOAT:0.1",
+          "Type": "STRING:PhysicalServo",
+          "UserNameTSTRING": "STRING:Servo",
+          "Volume": "FLOAT:0."
+        }
+      },
+      "rfvehicle_sha256": "f51f38da1943b18f2504fcba7d65ffa06d93d1c4e4a0f9dd940cf7c1c70c1fbf",
+      "sources": [
+        {
+          "file": "STRIVERminiVTOL_EA.RFX",
+          "sha256": "b13c2b33de646083a672e723f4ff9f3a85d097d339c821c161086cd23f56395d",
+          "url": "https://raw.githubusercontent.com/ArduPilot/SITL_Models/e93e185d4e22df48d6791fe45103b593f168946a/RealFlight/Released_Models/QuadPlanes/MFE_Striver_mini_VTOL/STRIVERminiVTOL_EA.RFX"
+        },
+        {
+          "file": "Striver_VTOL_V4.4.4.param",
+          "sha256": "24818e383baba6a06352e3b93d19f7732ecb8c6e68a405daab97eba99fba8230",
+          "url": "https://raw.githubusercontent.com/ArduPilot/SITL_Models/e93e185d4e22df48d6791fe45103b593f168946a/RealFlight/Released_Models/QuadPlanes/MFE_Striver_mini_VTOL/Striver_VTOL_V4.4.4.param"
+        }
+      ],
+      "original_servo_functions": {
+        "SERVO1_FUNCTION": "4",
+        "SERVO2_FUNCTION": "19",
+        "SERVO3_FUNCTION": "70",
+        "SERVO4_FUNCTION": "21",
+        "SERVO5_FUNCTION": "4",
+        "SERVO6_FUNCTION": "19",
+        "SERVO8_FUNCTION": "70",
+        "SERVO9_FUNCTION": "33",
+        "SERVO10_FUNCTION": "34",
+        "SERVO11_FUNCTION": "35",
+        "SERVO12_FUNCTION": "36"
+      },
+      "required_overlay": {
+        "SERVO9_FUNCTION": 33,
+        "SERVO10_FUNCTION": 34,
+        "SERVO11_FUNCTION": 36,
+        "SERVO12_FUNCTION": 35
+      }
+    }
+  ]
+}

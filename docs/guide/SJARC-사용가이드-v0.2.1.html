@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>SJ-ARC VTOL 실습환경 설치 도우미 사용 가이드 v0.2.1</title>
+<style>
+  @page { size: A4; margin: 15mm 15mm 17mm 15mm; @bottom-center { content: counter(page); font-size: 8.5pt; color: #8a94a3; } }
+  :root { --ink: #17202d; --muted: #5d6a79; --line: #dfe4ea; --accent: #234f84; --accent-soft: #e6eef9; --good: #24794f; --good-soft: #e3f3eb; --warn: #9a5f00; --warn-soft: #fcf1dd; --bad: #b02a2a; --bad-soft: #fbe9e9; }
+  * { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  html, body { margin: 0; padding: 0; background: #ffffff; }
+  body { font-family: "Malgun Gothic", "맑은 고딕", sans-serif; font-size: 10.2pt; line-height: 1.62; color: var(--ink); word-break: keep-all; }
+  h1 { font-size: 25pt; line-height: 1.25; margin: 0 0 6pt; letter-spacing: -0.5pt; }
+  h2 { font-size: 15.5pt; margin: 0 0 8pt; padding-bottom: 5pt; border-bottom: 2px solid var(--accent); letter-spacing: -0.3pt; }
+  h3 { font-size: 11.5pt; margin: 12pt 0 4pt; }
+  p { margin: 0 0 6pt; }
+  ol, ul { margin: 0 0 8pt; padding-left: 18pt; }
+  li { margin: 2pt 0; }
+  ul > li { list-style: none; position: relative; }
+  ul > li::before { content: ""; position: absolute; left: -10pt; top: 0.68em; width: 3.6pt; height: 3.6pt; border-radius: 50%; background: currentColor; }
+  b { font-weight: 700; }
+  .page { break-after: page; }
+  .page:last-child { break-after: auto; }
+  .chip { display: inline-block; font-size: 9pt; font-weight: 700; color: #fff; background: var(--accent); border-radius: 4pt; padding: 1pt 7pt; margin-right: 6pt; vertical-align: 2pt; }
+  .btn { display: inline-block; border: 1px solid #c5cfd8; border-radius: 3pt; padding: 0 5pt; font-size: 9.4pt; background: #fff; white-space: nowrap; }
+  .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .path { font-family: Consolas, "Malgun Gothic", monospace; font-size: 9.2pt; background: #f3f5f8; border-radius: 3pt; padding: 0 3pt; white-space: nowrap; }
+  .menu { font-weight: 700; color: var(--accent); }
+  figure { margin: 6pt auto 9pt; width: 82%; break-inside: avoid; }
+  figure img { width: 100%; display: block; border: 1px solid var(--line); border-radius: 5pt; }
+  figcaption { font-size: 8.6pt; color: var(--muted); margin-top: 3pt; }
+  .shot { position: relative; }
+  .mark { position: absolute; width: 20pt; height: 20pt; margin: -10pt 0 0 -10pt; border-radius: 50%; background: #d8402f; color: #fff; font-weight: 700; font-size: 10pt; line-height: 20pt; text-align: center; border: 2px solid #fff; }
+  .box { border-radius: 6pt; padding: 7pt 10pt; margin: 7pt 0 9pt; break-inside: avoid; }
+  .box p:last-child, .box ul:last-child, .box ol:last-child { margin-bottom: 0; }
+  .note { background: var(--accent-soft); color: #163e6e; }
+  .warn { background: var(--warn-soft); color: #5e3a05; }
+  .good { background: var(--good-soft); color: #1b5a3b; }
+  .bad { background: var(--bad-soft); color: #7a1f1f; }
+  .box-title { font-weight: 700; margin-bottom: 2pt; }
+  table { width: 100%; border-collapse: collapse; margin: 5pt 0 9pt; font-size: 9.3pt; break-inside: avoid; }
+  th, td { border: 1px solid var(--line); padding: 3.5pt 6pt; text-align: left; vertical-align: top; }
+  th { background: #f3f5f8; font-weight: 700; }
+  .flow { display: flex; gap: 5pt; margin: 8pt 0 10pt; }
+  .flow div { flex: 1; border: 1px solid var(--line); border-radius: 6pt; padding: 6pt 6pt; text-align: center; font-size: 9pt; line-height: 1.35; }
+  .flow b { display: block; font-size: 9.6pt; color: var(--accent); margin-bottom: 2pt; }
+  .check li { list-style: none; margin-left: -14pt; }
+  .check li::before { content: "□"; position: static; width: auto; height: auto; border-radius: 0; background: none; color: var(--accent); font-weight: 700; margin-right: 4pt; }
+  .cover { padding-top: 22mm; }
+  .cover .sub { font-size: 13pt; color: var(--muted); margin-bottom: 14pt; }
+  .cover .lead { font-size: 11pt; margin: 10pt 0 14pt; }
+  .two { display: flex; gap: 8pt; }
+  .two > div { flex: 1; }
+  .small { font-size: 8.8pt; color: var(--muted); }
+  .dot { display: inline-block; width: 8pt; height: 8pt; border-radius: 50%; margin-right: 4pt; vertical-align: -0.5pt; }
+  .strip img { height: 23pt; width: auto; border: 1px solid var(--line); border-radius: 4pt; display: block; margin: 3pt 0; }
+</style>
+</head>
+<body>
+
+<!-- 1. cover -->
+<section class="page cover">
+  <p class="small">RealFlight + ArduPilot SITL (Mission Planner) · MFE VTOL 4종</p>
+  <h1>SJ-ARC VTOL 실습환경<br>설치 도우미 사용 가이드</h1>
+  <div class="sub">v0.2.1 · 2026년 10월</div>
+  <p class="lead">이 가이드는 RealFlight에 MFE VTOL 4종(Striver mini · Pioneer · Fighter · Hero)을 넣고, Mission Planner의 ArduPilot SITL과 연결해 비행 실습을 준비하는 순서를 화면과 함께 설명합니다. 위에서부터 한 단계씩 따라 하면 됩니다.</p>
+
+  <div class="flow">
+    <div><b>1</b>대상 확인</div>
+    <div><b>2</b>모델 준비</div>
+    <div><b>3</b>RF에서 Import</div>
+    <div><b>4</b>검사·패치</div>
+    <div><b>5</b>SITL 연결과 파라미터</div>
+    <div><b>6</b>첫 확인 (DISARM)</div>
+  </div>
+
+  <div class="two">
+    <div class="box good">
+      <div class="box-title">도우미가 하는 일</div>
+      <ul>
+        <li>RF 기체 파일의 리프트 모터 신호(CH8~12) 보정</li>
+        <li>RF 설정 적용: RealFlight Link 켜기, 일시정지 끄기, 자동 리셋 2초</li>
+        <li>바꾸기 전 파일 백업과 되돌리기</li>
+        <li>연결 문제 진단과 되돌릴 수 있는 초기화</li>
+      </ul>
+    </div>
+    <div class="box warn">
+      <div class="box-title">도우미가 하지 않는 일</div>
+      <ul>
+        <li>자동 ARM · 이륙 · 비행 명령</li>
+        <li>조종기 보정, 드라이버 설치</li>
+        <li>SITL 파라미터 자동 적용 (Mission Planner에서 직접)</li>
+        <li>PID · 공력 · 조종기 프로필 변경</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="box note">
+    <div class="box-title">화면 예시에 대해</div>
+    <p>이 가이드의 화면은 RealFlight 9 PC를 기준으로 한 예시입니다. 경로의 <span class="path">사용자</span> 자리에는 실제 Windows 사용자 이름이 나오고, 목록의 기종과 상태는 PC마다 다를 수 있습니다.</p>
+  </div>
+
+  <p class="small" style="margin-top:22mm">기획·교육 적용·검증: 이충현 (세종사이버대학교 드론로봇융합학과 초빙교수)<br>
+  AI 개발도구를 활용해 만든 개인 제작 교육지원 도구입니다. 대학 · RealFlight · MFE · ArduPilot의 공식 제품이 아니며, 보증이나 인증을 뜻하지 않습니다.</p>
+</section>
+
+<!-- 2. before you start -->
+<section class="page">
+  <h2>0. 시작 전 준비</h2>
+  <h3>USB 폴더에 들어 있는 것</h3>
+  <table>
+    <tr><th style="width:44%">파일</th><th>용도</th></tr>
+    <tr><td><span class="path">SJARC-RealFlight-Setup.exe</span></td><td>설치 도우미 (이 가이드의 프로그램)</td></tr>
+    <tr><td>원본 모델 <span class="path">*_EA.RFX</span> 4개<br>제조사 파라미터 <span class="path">*_V4.4.4.param</span> 4개</td><td>MFE가 공개한 원본. 같은 폴더에 있으면 인터넷 없이 설치됩니다(해시로 검증).</td></tr>
+    <tr><td><span class="path">Pioneer_VTOL_RF_SITL.param</span><br><span class="path">Striver_VTOL_RF_SITL.param</span></td><td>RealFlight SITL 전용 파라미터 (실제 기체에는 쓰지 않음)</td></tr>
+    <tr><td><span class="path">현장_순서_RF9.txt</span>, <span class="path">README_KO.md</span></td><td>짧은 현장 순서표와 설명서</td></tr>
+  </table>
+
+  <h3>체크리스트</h3>
+  <ul class="check">
+    <li>USB 폴더를 <b>통째로</b> 바탕화면에 복사했습니다.</li>
+    <li>RealFlight를 <b>한 번 실행했다가 완전히 종료</b>했습니다. (문서 폴더가 이때 만들어집니다)</li>
+    <li>RealFlight · Mission Planner · SITL(검은 창)이 <b>모두 꺼져</b> 있습니다.</li>
+    <li>실제 비행 컨트롤러(USB · 텔레메트리)는 <b>분리</b>했습니다.</li>
+    <li>조종기(예: TX16S)를 USB로 연결했고, RealFlight에서 선택·보정되어 있습니다.</li>
+  </ul>
+
+  <h3>도우미 실행</h3>
+  <ol>
+    <li>USB 폴더의 <span class="path">SJARC-RealFlight-Setup.exe</span>를 더블클릭합니다.</li>
+    <li>"Windows의 PC 보호" 창이 나오면 <span class="menu">추가 정보</span> → <span class="menu">실행</span>을 누릅니다. 코드 서명이 없는 프로그램이라 나오는 경고입니다.</li>
+    <li>창 제목에 <b>v0.2.1</b>이 보이는지 확인합니다.</li>
+  </ol>
+  <div class="box note">
+    <div class="box-title">한 PC에 RealFlight가 여러 개 있으면</div>
+    <p>RF 9와 Evolution이 같이 설치된 PC에서는 이번에 설정할 버전 <b>하나만</b> 고릅니다. 두 버전에 모두 넣으려면 대상을 바꿔 같은 순서를 한 번 더 합니다. RF 9와 Evolution을 동시에 켜지 마세요(둘 다 FlightAxis 포트 18083을 씁니다).</p>
+  </div>
+</section>
+
+<!-- 3. layout + step 1 -->
+<section class="page">
+  <h2>화면 구성과 1단계 · 대상 확인</h2>
+  <figure>
+    <div class="shot">
+      <img src="img/01-target.png" alt="1단계 대상 확인 화면">
+      <div class="mark" style="left:3.2%; top:16%;">1</div>
+      <div class="mark" style="left:21.6%; top:15.6%;">2</div>
+      <div class="mark" style="left:21.6%; top:69.2%;">3</div>
+      <div class="mark" style="left:61.5%; top:88%;">4</div>
+      <div class="mark" style="left:79.5%; top:8.6%;">5</div>
+    </div>
+    <figcaption>그림 1. 도우미 화면 (1단계 · 대상 확인)</figcaption>
+  </figure>
+  <table>
+    <tr><td style="width:24%"><b>① 단계 목록</b></td><td>위에서부터 따라가는 순서입니다. <b style="color:#24794f">●</b> 완료 · <b style="color:#234f84">●</b> 지금 할 단계 · <b style="color:#a66800">●</b> 확인 필요 · <b style="color:#a0a8b2">○</b> 아직. 아래쪽에 <b>연결 문제 해결</b>과 <b>도움말·출처</b>가 있습니다. 아무 단계나 눌러 다시 볼 수 있습니다.</td></tr>
+    <tr><td><b>② 할 일 카드</b></td><td>지금 단계의 설명과 버튼입니다. 파란 버튼이 그 단계의 주 버튼입니다.</td></tr>
+    <tr><td><b>③ 작업 기록</b></td><td>도우미가 한 일이 시간순으로 남습니다. 문제가 생기면 이 내용을 사진으로 보내 주세요.</td></tr>
+    <tr><td><b>④ 상태 줄</b></td><td>RealFlight Link · 일시정지 · 조종기 · SITL 상태를 늘 보여 줍니다(9쪽). <span class="menu">새로고침</span>으로 다시 읽습니다.</td></tr>
+    <tr><td><b>⑤ 상태 배지</b></td><td>초록 "RF·MP 꺼짐 · 파일 작업 가능"일 때만 2 · 4단계의 파일 작업이 됩니다. 주황이면 RF · MP · SITL을 먼저 끕니다.</td></tr>
+  </table>
+  <h3><span class="chip">1단계</span>대상 확인</h3>
+  <ol>
+    <li><b>RealFlight 실행 파일</b> 목록에서 사용할 버전을 확인합니다. RF 9 PC라면 "RealFlight 9 / 9.5 / 9.5S"입니다.<br>
+      목록이 비어 있으면 <span class="btn">실행 파일 직접 선택</span> → RF 설치 폴더의 <span class="path">RealFlight.exe</span>(또는 <span class="path">RealFlight64.exe</span>)를 고릅니다.</li>
+    <li><b>사용자 문서 폴더</b>가 <span class="path">문서\RealFlight 9</span>(또는 9.5)인지 확인합니다. 없으면 RF를 한 번 실행·종료한 뒤 <span class="btn">다시 검색</span>을 누릅니다.</li>
+    <li><span class="btn primary">다음: 모델 준비</span>를 누릅니다.</li>
+  </ol>
+</section>
+
+<!-- 4. step 2 -->
+<section class="page">
+  <h2><span class="chip">2단계</span>모델 준비</h2>
+  <figure><img src="img/02-models.png" alt="2단계 모델 준비 화면"><figcaption>그림 2. 기종과 옵션을 고르는 화면</figcaption></figure>
+  <ol>
+    <li>설정할 <b>기종을 체크</b>합니다. 보통 4종 모두 둡니다.</li>
+    <li>옵션은 그대로 둡니다.
+      <ul>
+        <li><b>전진 프롭 브레이크 보정</b>: 기본으로 켜 둡니다.</li>
+        <li><b>모델·텍스처 경로 보정</b>: Evolution 전용입니다. RF 8/9에서는 <b>회색(사용 안 함)이 정상</b>입니다.</li>
+      </ul></li>
+    <li><span class="btn primary">모델 준비 / 기존 모델 패치</span>를 누르고, 확인 창에서 대상(제품 · 문서 폴더)을 확인한 뒤 <span class="menu">확인</span>을 누릅니다.</li>
+    <li>결과를 봅니다.
+      <ul>
+        <li>이미 RF에 있는 기종 → <b style="color:#24794f">보정 완료</b> (신호 보정을 바로 마침)</li>
+        <li>아직 없는 기종 → <b style="color:#9a5f00">Import 필요</b> → 도우미가 자동으로 <b>3단계</b> 화면으로 넘어갑니다.</li>
+      </ul></li>
+  </ol>
+  <div class="box note">
+    <p>원본 파일은 도우미와 같은 폴더(USB)에 있으면 그대로 씁니다. 없으면 GitHub에서 약 13 MB를 받습니다. 어느 쪽이든 해시로 검증하고, 바꾸기 전 파일은 모두 <span class="path">문서\RealFlight 9\.SJARC\Backups</span>에 백업합니다.</p>
+  </div>
+</section>
+
+<!-- 5. step 3 -->
+<section class="page">
+  <h2><span class="chip">3단계</span>RealFlight에서 Import</h2>
+  <figure><img src="img/03-import.png" alt="3단계 Import 화면"><figcaption>그림 3. Import할 파일 목록과 순서 (예: Pioneer와 Hero가 Import 필요)</figcaption></figure>
+  <p><b>RealFlight 9 / 9.5</b>에서는 Import가 필요한 기종마다 아래를 반복합니다.</p>
+  <ol>
+    <li><span class="btn primary">RealFlight 열기</span>로 RF를 엽니다.</li>
+    <li><b>MFE가 아닌 기본 기체(예: Piper Cub)를 먼저 선택</b>합니다. MFE 기체가 선택된 채로 Import하면 "This battery is in use" 오류가 납니다(4종이 같은 배터리 파일을 씁니다).</li>
+    <li><span class="menu">Simulation → Import → RealFlight Archive (RFX, G3X)</span>를 누르고 목록의 파일을 고릅니다. 파일은 <span class="path">문서\RealFlight 9\RFX\SJARC</span>에 있습니다(<span class="btn">Import 폴더 열기</span>).</li>
+    <li>끝에 "경로를 찾을 수 없습니다" 창이 나오면 <span class="menu">확인</span>을 누릅니다. 원본 모델에 제작자 PC 경로가 들어 있어 나오는 것으로 문제없습니다.</li>
+    <li>모두 가져왔으면 <b>RealFlight를 완전히 종료</b>하고 도우미에서 <span class="btn">Import 끝냄 → 다음</span>을 누릅니다.</li>
+  </ol>
+  <div class="box warn">
+    <div class="box-title">주의</div>
+    <ul>
+      <li><b>이미 설치된 기종은 다시 Import하지 마세요.</b> 보정과 복구는 4단계가 합니다.</li>
+      <li>Evolution에서는 <span class="menu">My RealFlight → Import → RealFlight Archives</span>입니다.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- 6. step 4 -->
+<section class="page">
+  <h2><span class="chip">4단계</span>검사·패치</h2>
+  <figure><img src="img/04-finalize.png" alt="4단계 검사 패치 화면"><figcaption>그림 4. 4종 모두 보정 완료된 결과</figcaption></figure>
+  <ol>
+    <li>RF · Mission Planner · SITL이 모두 꺼져 있는지 확인합니다. 오른쪽 위 배지가 <b style="color:#24794f">RF·MP 꺼짐 · 파일 작업 가능</b>이어야 합니다.</li>
+    <li><span class="btn primary">Import 후 검사·패치</span>를 누르고 <span class="menu">확인</span>을 누릅니다.</li>
+    <li>모든 기종이 <b style="color:#24794f">보정 완료</b>이면 성공입니다. "확인 필요" 문구가 나오면 그대로 따릅니다(예: 조종기 설정의 Dual Rates and Expo 끄기).</li>
+    <li>RF를 열고 기체 선택에서 <b>원래 이름</b>을 고른 뒤 FLY를 눌러 오류 없이 뜨는지 봅니다.<br>
+      <span class="path">STRIVERminiVTOL</span> · <span class="path">Pioneer</span> · <span class="path">fighterVTOL</span> · <span class="path">HERO2180</span> (다른 이름으로 저장한 사본은 보정되지 않습니다)</li>
+  </ol>
+  <h3>RealFlight 설정 확인 (처음 한 번)</h3>
+  <table>
+    <tr><th style="width:52%">RF 9: Simulation → Settings → Physics</th><th>값</th></tr>
+    <tr><td>RealFlight Link</td><td><b>Yes</b></td></tr>
+    <tr><td>Pause Sim When in Background</td><td><b>No</b></td></tr>
+    <tr><td>Pause Sim When in Menu</td><td><b>No</b></td></tr>
+    <tr><td>Automatic Reset Delay</td><td><b>2.0</b></td></tr>
+    <tr><td>조종기 설정: Software Radio Dual Rates and Expo</td><td><b>Off</b></td></tr>
+  </table>
+  <p class="small">도우미가 RF 설정 파일에 이미 적용해 두므로 화면에서 확인만 하면 됩니다. 도우미 아래 상태 줄로도 볼 수 있습니다. 되돌리려면 <span class="btn">백업에서 복구</span>를 누르고, 최근 작업부터 되돌립니다.</p>
+</section>
+
+<!-- 7. step 5 -->
+<section class="page">
+  <h2><span class="chip">5단계</span>SITL 연결</h2>
+  <figure style="width:100%"><img src="img/09-diagram.png" alt="연결 구조 그림" style="border:none"><figcaption>연결 구조: 조종기는 RealFlight가 읽고, RealFlight ↔ SITL은 FlightAxis(TCP 18083), SITL ↔ Mission Planner는 MAVLink(TCP 5760 또는 UDP 14550)로 연결됩니다. 도우미 5단계 화면에도 같은 그림이 있습니다.</figcaption></figure>
+  <figure style="width:58%"><img src="img/05-sitl.png" alt="5단계 SITL 연결 화면"><figcaption>그림 5. 5단계 화면의 SITL 시작 버튼 (SITL이 flightaxis로 켜진 예)</figcaption></figure>
+  <div class="box good">
+    <div class="box-title">가장 쉬운 방법: <span class="btn primary">SITL 시작 (flightaxis)</span></div>
+    <ol>
+      <li>RealFlight를 켜고 기체를 고릅니다.</li>
+      <li>도우미 5단계에서 <span class="btn primary">SITL 시작 (flightaxis)</span>을 누릅니다. 항상 flightaxis로, 같은 파라미터 저장소로, Wipe 없이 켭니다.</li>
+      <li>Mission Planner가 안 켜져 있으면 도우미가 켜 주고, MP가 <b>스스로 연결</b>합니다. 오른쪽 위 단추가 DISCONNECT로 바뀌면 연결된 것이니 다시 누르지 마세요.</li>
+      <li>RF에서 스페이스바(리셋)를 누르고 "FlightAxis Controller Device has been activated"가 나오는지, 도우미 상태 줄에 <b style="color:#24794f">SITL flightaxis로 실행 중</b>이 보이는지 확인합니다.</li>
+      <li>끌 때는 <span class="btn">SITL 종료</span> (또는 SITL 검은 창 닫기), RealFlight는 마지막에 끕니다.</li>
+    </ol>
+  </div>
+  <p class="small">Mission Planner의 Simulation 탭에서 직접 켜도 됩니다: <span class="menu">Simulation</span> → <b>Model = flightaxis</b> → <span class="menu">Plane</span> → <span class="menu">Stable</span>, <b>Wipe 체크 금지</b>. 처음 한 번은 <span class="menu">Config → Planner → Layout = Advanced</span>로 바꿔야 Simulation 탭이 보입니다.</p>
+  <div class="box bad">
+    <div class="box-title">Simulation 탭에서 Model을 flightaxis로 고르지 않으면</div>
+    <p>SITL이 RF와 따로 돌아서 <b>RF 기체는 넘어지는데 Mission Planner 화면은 그대로</b>입니다(배터리 12.60V 고정). 파라미터 저장소도 달라져서 <b>비행모드가 MANUAL · FBWA만</b> 보입니다. 파라미터가 지워진 것이 아니니, SITL을 닫고 flightaxis로(또는 <span class="btn primary">SITL 시작</span>으로) 다시 켜면 돌아옵니다.</p>
+  </div>
+</section>
+
+<!-- 8. parameters -->
+<section class="page">
+  <h2>SITL 파라미터 적용</h2>
+  <p>연결된 대상이 <b>DISARM 상태의 SITL</b>인지 확인한 뒤 진행합니다. 처음이라면 <span class="menu">Full Parameter List → Save to file</span>로 기존 값을 먼저 저장해 두세요.</p>
+  <ol>
+    <li>Mission Planner <span class="menu">CONFIG → Full Parameter List → Load from file</span>로 아래 파일을 고릅니다.</li>
+    <li><span class="menu">Write Params</span>를 누릅니다.</li>
+    <li>SITL을 다시 시작합니다(Simulation에서 다시 연결).</li>
+  </ol>
+  <table>
+    <tr><th style="width:17%">기종</th><th style="width:43%">불러올 파일 (순서대로)</th><th>비고</th></tr>
+    <tr><td>Pioneer</td><td><span class="path">Pioneer_VTOL_RF_SITL.param</span></td><td>모터 3·4 번호 교체 포함</td></tr>
+    <tr><td>Striver mini</td><td><span class="path">Striver_VTOL_RF_SITL.param</span></td><td>모터 3·4 교체, 엘리베이터 반전, VTOL 롤 P 0.2 포함</td></tr>
+    <tr><td>Fighter</td><td>① <span class="path">Fighter_VTOL_V4.4.4.param</span><br>② <span class="path">MFE_MotorMap_ONLY.param</span></td><td>MANUAL에서 엘리베이터 방향 확인 (반대면 SERVO2_REVERSED = 1)</td></tr>
+    <tr><td>Hero</td><td>① <span class="path">Hero_VTOL_V4.4.4.param</span><br>② <span class="path">MFE_MotorMap_ONLY.param</span></td><td>V-tail (SERVO2 = 79, SERVO4 = 80)</td></tr>
+  </table>
+  <ul>
+    <li>파일은 USB 폴더나 <span class="path">문서\RealFlight 9\.SJARC\Parameters</span>에 있습니다. 도우미 5단계의 <span class="btn">파라미터 폴더 열기</span>로 열 수 있습니다.</li>
+    <li><b>FLTMODE_CH</b>는 조종기의 모드 스위치 채널로 맞춥니다(기본 8). RF_SITL 파일은 이 값을 바꾸지 않습니다.</li>
+    <li>RF_SITL 파일에는 구버전과 신버전 이름이 함께 들어 있어, 불러올 때 "없는 파라미터"가 표시돼도 정상입니다.</li>
+    <li><b>기종을 바꿀 때마다</b> 그 기종의 파일을 다시 불러옵니다.</li>
+    <li>RF_SITL 파일과 MotorMap 파일은 <b>시뮬레이터 전용</b>입니다. 실제 기체에는 쓰지 마세요.</li>
+  </ul>
+  <h3>SITL 재시작 뒤 모터 번호 확인 (Servo Output)</h3>
+  <table>
+    <tr><th>SITL 출력</th><th>기능 값</th><th>RF 기체의 모터 위치</th></tr>
+    <tr><td>SERVO9</td><td>33 (모터1)</td><td>앞 오른쪽</td></tr>
+    <tr><td>SERVO10</td><td>34 (모터2)</td><td>뒤 왼쪽</td></tr>
+    <tr><td>SERVO11</td><td><b>36 (모터4)</b></td><td>뒤 오른쪽</td></tr>
+    <tr><td>SERVO12</td><td><b>35 (모터3)</b></td><td>앞 왼쪽</td></tr>
+  </table>
+  <p class="small">제조사 원본 파라미터는 SERVO11 = 35, SERVO12 = 36이라 RF 기체 배선과 3·4번이 반대입니다. 이대로 뜨면 한쪽으로 뒤집히므로 위 표처럼 바꿔 씁니다.</p>
+</section>
+
+<!-- 9. first check + status strip -->
+<section class="page">
+  <h2>첫 확인 (DISARM 상태부터)</h2>
+  <ol>
+    <li>DISARM 상태에서 모드 스위치가 바뀌는지, MANUAL에서 조종면 방향이 맞는지 봅니다.</li>
+    <li>Mission Planner Status 탭에서 스로틀(ch3in)이 최저·최고일 때 약 1000/2000인지 봅니다.</li>
+    <li><b>QLOITER</b>(또는 QHOVER) → Arm → 스로틀을 살짝 올려, RF 화면에서 <b>모터 4개가 같이 도는지</b> 봅니다.</li>
+    <li>한쪽으로 뒤집히면 <b>즉시 Disarm</b>하고 SERVO11 = 36, SERVO12 = 35인지 확인합니다.</li>
+  </ol>
+  <div class="box warn">
+    <p>"Q_ASSIST_SPEED is not set"으로 Arm이 거부되면 파라미터 파일을 불러오지 않은 것입니다. 도우미는 Arm이나 이륙을 하지 않으며, 수직비행부터 단계적으로 직접 시험합니다.</p>
+  </div>
+
+  <h2 style="margin-top:14pt">상태 줄 보는 법</h2>
+  <div class="strip">
+    <img src="img/07-status-good.png" alt="모두 정상인 상태 줄">
+    <img src="img/08-status-bad.png" alt="문제가 있는 상태 줄">
+  </div>
+  <p class="small">위: 모두 정상 · 아래: 흔한 문제들이 한꺼번에 있을 때</p>
+  <table>
+    <tr><th style="width:26%">항목</th><th style="width:37%"><span style="color:#24794f">●</span> 초록 (정상)</th><th>빨강·주황일 때 할 일</th></tr>
+    <tr><td>RealFlight Link</td><td>켜짐</td><td>RF Physics에서 RealFlight Link = Yes, 또는 도우미 4단계 다시 실행</td></tr>
+    <tr><td>일시정지</td><td>꺼짐</td><td>켜져 있으면 MP를 클릭할 때 RF가 멈춥니다. 두 Pause 항목을 No로</td></tr>
+    <tr><td>조종기</td><td>선택됨</td><td>RF에서 조종기를 선택·보정</td></tr>
+    <tr><td>SITL</td><td>flightaxis로 실행 중</td><td>"flightaxis 아님"이면 MP·SITL을 닫고 Model = flightaxis로 다시 시작</td></tr>
+  </table>
+  <p class="small">회색 "확인 불가 / SITL 꺼짐"은 오류가 아니라 아직 읽을 대상이 없다는 뜻입니다. 설정을 바꿨으면 <span class="menu">새로고침</span>을 누릅니다.</p>
+</section>
+
+<!-- 10. troubleshooting -->
+<section class="page">
+  <h2>연결 문제 해결</h2>
+  <figure><img src="img/06-trouble.png" alt="연결 문제 해결 화면"><figcaption>그림 6. 연결 문제 해결 화면과 진단 결과 예시</figcaption></figure>
+  <p>SITL 연결 중 RealFlight가 "응답 없음"이 되거나, 처음 설정한 뒤로 연결이 안 될 때 씁니다. <b>위에서부터 하나씩</b> 해 보세요.</p>
+  <ol>
+    <li><b>RF가 "응답 없음"이면 창을 닫기 전에</b> <span class="btn primary">① 진단 보고서 만들기</span>를 누르고, SITL 검은 창을 휴대폰으로 찍어 둡니다. 진단은 읽기만 하고 아무것도 바꾸지 않습니다.</li>
+    <li>RF와 MP를 닫고 <span class="btn">② 남은 SITL 창 종료</span>를 누른 뒤, 켜는 순서(RF → 기체 선택 → MP → Simulation)대로 다시 연결합니다.</li>
+    <li>계속 멈추면 <span class="btn">③ SITL 저장 설정 초기화</span>를 누릅니다. 파라미터를 넣기 전에 연결부터 확인합니다.
+      <ul><li>초기화 직후에는 되는데 파라미터를 넣고 재시작한 뒤 멈추면, 파라미터가 원인입니다.</li></ul></li>
+    <li>그래도 멈추면 <span class="btn">④ RealFlight 설정 초기화</span>(최후 수단)를 누릅니다. 조종기 선택·보정과 Physics 설정을 다시 합니다.</li>
+    <li>해결되지 않으면 <span class="btn">SITL 설정 되돌리기</span>와 <span class="btn">RF 설정 되돌리기</span>로 원래대로 돌리고, ①의 zip과 사진을 보내 주세요.</li>
+  </ol>
+  <div class="box note">
+    <p>③ · ④와 되돌리기는 RF · MP · SITL이 모두 꺼져 있어야 실행됩니다. 초기화는 파일을 지우지 않고 백업 이름으로 옮기므로 언제든 되돌릴 수 있습니다.</p>
+  </div>
+</section>
+
+<!-- 11. FAQ -->
+<section class="page">
+  <h2>자주 나오는 문제</h2>
+  <table>
+    <tr><th style="width:36%">증상</th><th style="width:30%">원인</th><th>해결</th></tr>
+    <tr><td>RF 기체는 넘어지는데 MP 화면은 그대로, 배터리 12.60V</td><td>MP에서 Model을 flightaxis로 고르지 않음</td><td>MP·SITL 닫고 도우미 [SITL 시작], 또는 Simulation → Model = flightaxis</td></tr>
+    <tr><td>껐다 켜니 비행모드가 MANUAL · FBWA만 보임</td><td>다른 Model로 켜져 다른 파라미터 저장소를 씀</td><td>파라미터 다시 쓰기 전에 flightaxis로 다시 켜기 (도우미 [SITL 시작] 권장)</td></tr>
+    <tr><td>SITL 연결 전 RF 기체가 계속 뒤집히고 리셋됨</td><td>연결 전에는 조종기 채널 값으로 모터가 돎</td><td>SITL을 연결하면 멈춥니다(정상)</td></tr>
+    <tr><td>Import 중 "This battery is in use"</td><td>MFE 기체가 선택된 채 Import</td><td>기본 기체(예: Piper Cub)를 선택한 뒤 Import</td></tr>
+    <tr><td>Import 끝에 "경로를 찾을 수 없습니다"</td><td>원본 모델 속 제작자 PC 경로</td><td>확인을 누르면 됩니다(무해)</td></tr>
+    <tr><td>FLY를 누르면 RF 오류 창</td><td>예전 도우미(v0.1.2/0.1.3)의 경로 보정</td><td>RF 종료 → 도우미 4단계 다시 실행(자동 복구)</td></tr>
+    <tr><td>뜨자마자 한쪽으로 뒤집힘</td><td>모터 3·4 번호 반대</td><td>SERVO11 = 36, SERVO12 = 35 확인</td></tr>
+    <tr><td>"Q_ASSIST_SPEED is not set"으로 Arm 거부</td><td>파라미터 파일을 안 불러옴</td><td>기종 파일 Load → Write → SITL 재시작</td></tr>
+    <tr><td>SITL 연결 중 RF "응답 없음"</td><td>여러 원인</td><td>"연결 문제 해결" 순서대로</td></tr>
+    <tr><td>도우미: "RealFlight · Mission Planner · SITL을 먼저 모두 종료하세요"</td><td>프로그램이 켜져 있음</td><td>모두 종료 후 다시(응답 없음이면 작업 관리자에서 끝내기)</td></tr>
+    <tr><td>도우미 목록에 RealFlight가 없음</td><td>RF를 한 번도 실행하지 않았거나 다른 위치에 설치</td><td>RF 실행·종료 후 다시 검색, 또는 실행 파일 직접 선택</td></tr>
+  </table>
+
+  <h2 style="margin-top:12pt">백업 · 보고서 위치와 문의</h2>
+  <table>
+    <tr><td style="width:30%"><b>파일 백업</b></td><td><span class="path">문서\RealFlight 9\.SJARC\Backups</span> — 4단계 <span class="btn">백업에서 복구</span>로 되돌림</td></tr>
+    <tr><td><b>작업 보고서 · 진단</b></td><td>4단계 <span class="btn">작업 보고서 폴더</span> 또는 연결 문제 해결의 <span class="btn">보고서 폴더 열기</span></td></tr>
+    <tr><td><b>SITL 초기화 백업</b></td><td><span class="path">문서\Mission Planner\sitl\flightaxis_SJARC-backup-날짜</span></td></tr>
+  </table>
+  <div class="box good">
+    <div class="box-title">문의할 때 보내 주면 좋은 것</div>
+    <ul>
+      <li>연결 문제 해결 ①의 <span class="path">SJARC-diagnose-날짜.zip</span></li>
+      <li>SITL 검은 창과 도우미 화면 사진 (상태 줄이 보이게)</li>
+      <li>언제, 무엇을 누른 뒤에 문제가 났는지</li>
+    </ul>
+  </div>
+  <p class="small" style="margin-top:10pt">MFE VTOL 모델과 제조사 파라미터: ArduPilot SITL_Models PR #158 (MakeFlyEasy). 연동 문서: ardupilot.org/dev/docs/sitl-with-realflight.html. RealFlight, MFE, ArduPilot의 이름과 권리는 각 권리자에게 있습니다.</p>
+</section>
+
+</body>
+</html>

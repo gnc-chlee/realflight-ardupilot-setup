@@ -1,0 +1,31 @@
+{
+  "scope": "Offline fixture tests; no simulator execution or live parameter write",
+  "tests_run": 16,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "completed_utc": "2026-09-15T17:33:51.570082Z",
+  "successful": true,
+  "runtime": "Windows PowerShell 5.1",
+  "source_commit": "e93e185d4e22df48d6791fe45103b593f168946a",
+  "patch_sha256": "fb330d3e90b0b08281a723fa07a4ed0b9cc888c7d08dc8709b336b4832a0c12a",
+  "test_script_sha256": "7f0bcab24337ed7f4c7c6a7d37d645ab9ad5a25230d94b80a8f54ef79185105f",
+  "test_cases": [
+    "test_apply_four_preserves_unrelated_bytes_and_routes",
+    "test_check_does_not_write",
+    "test_custom_mode_feed_refused",
+    "test_evolution_saved_striver_copy_if_available",
+    "test_idempotence_and_exact_restore",
+    "test_legacy_direct_feed_is_upgradable",
+    "test_manifest_path_traversal_is_refused",
+    "test_modified_wiring_refused_before_any_write",
+    "test_no_installed_models_is_error",
+    "test_overlay_is_exactly_four_motor_functions",
+    "test_restore_rejects_tampered_backup",
+    "test_restore_wont_overwrite_later_edits",
+    "test_running_simulator_process_blocks_apply",
+    "test_single_model_selection",
+    "test_truncated_model_refused",
+    "test_utf8_bom_and_lf_are_preserved"
+  ]
+}
