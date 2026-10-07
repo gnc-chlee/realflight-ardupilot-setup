@@ -3,7 +3,7 @@
 # example data for an RF 9 target, so no real RealFlight folder is read or written and no personal path appears.
 # Only display code runs: no Prepare/Finalize/Restore/reset is invoked.
 param(
-    [string] $Exe = (Join-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) 'dist\SJARC-RealFlight-Setup-v0.2.1\SJARC-RealFlight-Setup.exe'),
+    [string] $Exe = (Join-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) 'dist\SJARC-RealFlight-Setup-v0.2.2\SJARC-RealFlight-Setup.exe'),
     [string] $OutDir = (Join-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) 'docs\guide\img')
 )
 $ErrorActionPreference = 'Stop'
@@ -105,12 +105,18 @@ Status 'RF·MP 실행 중 · 파일 작업은 종료 후' $false @(@($green, 'Re
 
 # Status strip close-ups: all good, and the usual problems.
 $strip = (Field 'stLink').Parent
-$screen = $strip.RectangleToScreen($strip.ClientRectangle)
-$crop = New-Object Drawing.Rectangle ($screen.X - $form.Left), ($screen.Y - $form.Top), $screen.Width, $screen.Height
+# Crop to the visible items (up to the refresh link) so the strip's empty right side is left out.
+function Strip-Crop {
+    Settle 200
+    $right = 0
+    foreach ($c in $strip.Controls) { if ($c.Visible -and $c.Right -gt $right) { $right = $c.Right } }
+    $screen = $strip.RectangleToScreen((New-Object Drawing.Rectangle 0, 0, ([Math]::Min($right + 16, $strip.ClientSize.Width)), $strip.ClientSize.Height))
+    New-Object Drawing.Rectangle ($screen.X - $form.Left), ($screen.Y - $form.Top), $screen.Width, $screen.Height
+}
 Status 'RF·MP 꺼짐 · 파일 작업 가능' $true @(@($green, 'RealFlight Link 켜짐'), @($green, '일시정지 꺼짐'), @($green, '조종기 선택됨'), @($green, 'SITL flightaxis로 실행 중'))
-Shot '07-status-good.png' $crop
+Shot '07-status-good.png' (Strip-Crop)
 Status 'RF·MP 실행 중 · 파일 작업은 종료 후' $false @(@($red, 'RealFlight Link 꺼짐'), @($red, '일시정지 켜짐 (꺼야 함)'), @($amber, '조종기 선택 기록 없음'), @($red, 'SITL이 flightaxis 아님 → Model 다시 선택'))
-Shot '08-status-bad.png' $crop
+Shot '08-status-bad.png' (Strip-Crop)
 # Connection diagram on its own at twice the design size, for the printed guide.
 $diagram = [Activator]::CreateInstance($asm.GetType('SJARC.ConnectionDiagram'))
 $diagram.Font = $form.Font; $diagram.Size = New-Object Drawing.Size 1560, 316

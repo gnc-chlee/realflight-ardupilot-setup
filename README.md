@@ -7,7 +7,7 @@ Mission Planner의 ArduPilot SITL(FlightAxis)과 연결해 모의비행할 수 �
 ![연결 구조](docs/guide/img/09-diagram.png)
 
 - **내려받기:** [Releases](../../releases)의 `SJARC-RealFlight-Setup-v*.zip`
-- **인쇄용 가이드:** [사용 가이드 PDF](docs/guide/SJARC-사용가이드-v0.2.1.pdf) (아래 순서와 같은 내용, 11쪽)
+- **인쇄용 가이드:** [사용 가이드 PDF](docs/guide/SJARC-사용가이드-v0.2.2.pdf) (아래 순서와 같은 내용, 11쪽)
 
 ## 하는 일과 하지 않는 일
 

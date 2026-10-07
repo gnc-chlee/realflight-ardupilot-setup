@@ -13,7 +13,7 @@ APP = ROOT / 'apps/SJARC-RealFlight-Setup'
 BUILD = ROOT / 'artifacts/sjarc-setup/build'
 BUILD.mkdir(parents=True, exist_ok=True)
 COMMIT = 'e93e185d4e22df48d6791fe45103b593f168946a'
-VERSION = '0.2.1'
+VERSION = '0.2.2'
 # MakeFlyEasy's original files (ArduPilot/SITL_Models PR #158) are not kept in this repository.
 # The build downloads them once into UPSTREAM and checks SHA-256, as the helper itself does at run time.
 UPSTREAM = ROOT / 'artifacts/mfe-four-models/upstream'
@@ -108,6 +108,9 @@ def main():
                     'live_import_tested': False, 'live_flight_tested': False,
                     'ui_checks': 'v0.1.2 window launch smoke test (payload extraction + read-only detection). Target-selection rules covered by a headless C# harness; no multi-version native UI or live Import test.',
                     'network_checks': 'Pinned raw.githubusercontent.com URL re-fetched and SHA-256 checked; offline source folder (EXE folder) path covered by tests',
+                    'changes_in_0_2_2': ['Pioneer and Striver RealFlight SITL parameter files (*_RF_SITL.param) are made by the helper from the verified originals into .SJARC\\Parameters (SitlParams.ps1, shared with scripts/make-sitl-params.ps1); before, only the field USB kit had them',
+                                         'Parameter guidance: load the same file twice the first time (Q_ parameters only exist after Q_ENABLE = 1 and a restart, otherwise "Q_ASSIST_SPEED is not set")',
+                                         'Build downloads the MFE originals itself (pinned commit, SHA-256), so a fresh clone builds and tests'],
                     'changes_in_0_2_1': ['SITL step: Start SITL button runs Mission Planner\'s own flightaxis command line (same sitl\\flightaxis store, never --wipe) plus a UDP 14550 output that Mission Planner auto-connects to; refuses a second SITL and asks for RealFlight first',
                                          'SITL step: connection diagram (controller -> RealFlight <-> FlightAxis TCP 18083 <-> ArduPilot SITL <-> MAVLink TCP 5760 / UDP 14550 <-> Mission Planner)',
                                          'Log area collapses on the SITL, troubleshooting and help pages'],

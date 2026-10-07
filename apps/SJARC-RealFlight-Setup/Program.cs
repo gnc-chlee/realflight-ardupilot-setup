@@ -15,7 +15,7 @@ using System.Windows.Forms;
 
 [assembly: AssemblyTitle("SJ-ARC RealFlight Setup")]
 [assembly: AssemblyDescription("Unofficial educational MFE VTOL setup assistant. No automatic ARM or flight.")]
-[assembly: AssemblyVersion("0.2.1.0")]
+[assembly: AssemblyVersion("0.2.2.0")]
 
 namespace SJARC {
     static class Program {
@@ -170,7 +170,7 @@ namespace SJARC {
         public SetupForm(string workRoot) {
             work=workRoot; Directory.CreateDirectory(work);
             payload=ExtractPayload();
-            Text="SJ-ARC | RealFlight VTOL 설치 도우미 v0.2.1";
+            Text="SJ-ARC | RealFlight VTOL 설치 도우미 v0.2.2";
             Icon appIcon=null;
             try {appIcon=System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath);Icon=appIcon;} catch(Exception) {}
             Font=new Font("맑은 고딕",10F); AutoScaleMode=AutoScaleMode.Dpi;

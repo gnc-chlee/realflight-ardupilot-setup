@@ -10,7 +10,7 @@ $ProgressPreference = 'SilentlyContinue'
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $Catalog = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'models.json') -Raw -Encoding UTF8 | ConvertFrom-Json
 $Utf8 = [Text.UTF8Encoding]::new($false)
-$Version = '0.2.1'
+$Version = '0.2.2'
 # Absolute root baked into all four PR 158 archives by the vendor's RealFlight 8 PC.
 $VendorPrefix = 'C:\Users\Administrator\Documents\RealFlight 8\'
 # RF 8/9 store the FlightAxis switch as FlightAxisLinkEnabled; Evolution as RealFlightLinkEnabled. Whichever exists is set.
