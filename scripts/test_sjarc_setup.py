@@ -23,6 +23,9 @@ PS = Path(os.environ['SystemRoot']) / 'System32/WindowsPowerShell/v1.0/powershel
 EXE = Path(r'C:\Program Files (x86)\Steam\steamapps\common\RealFlight Evolution\RealFlight64.exe')
 CATALOG = json.loads((BUILD / 'models.json').read_text('utf-8'))
 UPSTREAM = ROOT / 'artifacts/mfe-four-models/upstream'
+# SitlParams.ps1 output for the pinned originals (same recipe as the field kit since v0.1.4, plus the load-twice header)
+RF_SITL_SHA256 = {'Pioneer_VTOL_RF_SITL.param': '2e7c50d0f77f99196b7d627130ff866393353fee3969c9636a222c6fefb48f6d',
+                  'Striver_VTOL_RF_SITL.param': '3dab6d4e7cf0411b6eaddd6b359d7bda2b2f25e4a81cb8f434aa35702ee84574'}
 ASSETS = Path(r'C:\Users\Public\Documents\SJARC-Setup-Test')
 # Fixed, isolated test assets only; never the production Public\Documents\SJARC\RF tree.
 ASSETS.mkdir(exist_ok=True)
@@ -474,6 +477,26 @@ class InstallerTests(unittest.TestCase):
         self.assertTrue((Path(fh['Assets']) / 'H' / model('H')['Kex']).exists())
         self.assertFalse((Path(fs['Assets']) / 'S' / s['Kex']).exists())
 
+    def test_rf_sitl_parameter_files_are_made_from_the_verified_originals(self):
+        r = self.run_request(self.req(keys=('S', 'P', 'H')))
+        params = self.rf / '.SJARC/Parameters'
+        # Pioneer and Striver get a RealFlight SITL file; Fighter and Hero keep using the original + MotorMap.
+        self.assertEqual(sorted(p.name for p in params.glob('*_RF_SITL.param')), sorted(RF_SITL_SHA256))
+        for name, digest in RF_SITL_SHA256.items():
+            data = (params / name).read_bytes()
+            self.assertEqual(hashlib.sha256(data).hexdigest(), digest, name)
+            text = data.decode('utf-8')
+            for needle in ('SERVO11_FUNCTION,36', 'SERVO12_FUNCTION,35', 'Q_ENABLE,1', 'Q_ASSIST_SPEED,14', 'AIRSPEED_MIN,',
+                           'load and write this file once more'):
+                self.assertIn(needle, text, name)
+            self.assertNotIn('\nFLTMODE_CH,', text)
+        for key in ('S', 'P', 'H'):
+            m = model(key)
+            self.assertEqual((params / m['Param']).read_bytes(), (UPSTREAM / m['Directory'] / m['Param']).read_bytes())
+        req = self.req('Restore', keys=('S', 'P', 'H')); req['Manifest'] = r['Transaction']['Manifest']
+        self.run_request(req)
+        self.assertEqual(list(params.glob('*_RF_SITL.param')), [])
+
     def test_zero_byte_and_hidden_targets_do_not_abort(self):
         params = self.rf / '.SJARC/Parameters'; params.mkdir(parents=True)
         h = model('H')
@@ -822,6 +845,7 @@ if __name__ == '__main__':
                    scope='Isolated file fixtures incl. RF-Evolution-style import re-rooting (from artifacts/path-repair), RF9 metadata fixture + real Evolution read-only discovery, pure C# target selection rules (19 assertions), connection troubleshooting on sandbox RF 9 / Mission Planner folders with stand-in SITL processes; RF Import UI, live FlightAxis connection and live flights NOT tested',
                    backend_sha256=hashlib.sha256((BUILD / 'Backend.ps1').read_bytes()).hexdigest(),
                    troubleshoot_sha256=hashlib.sha256((BUILD / 'Troubleshoot.ps1').read_bytes()).hexdigest(),
+                   sitlparams_sha256=hashlib.sha256((BUILD / 'SitlParams.ps1').read_bytes()).hexdigest(),
                    program_sha256=hashlib.sha256((ROOT / 'apps/SJARC-RealFlight-Setup/Program.cs').read_bytes()).hexdigest(),
                    selection_sha256=hashlib.sha256((ROOT / 'apps/SJARC-RealFlight-Setup/TargetSelection.cs').read_bytes()).hexdigest())
     (ROOT / 'artifacts/sjarc-setup/test-results.json').write_text(json.dumps(summary, indent=2), encoding='utf-8')

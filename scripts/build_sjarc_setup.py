@@ -69,6 +69,7 @@ def payload():
     old = (ROOT / 'patches/MFE-FlightAxis-Signal-Patch-v1.0.0/Patch-MFE-Signals.ps1').read_text('utf-8')
     core = old[old.index('$Names = '):old.index('\ntry {\n    if (-not $RealFlightRoot')]
     entries = {'Backend.ps1': (APP / 'Backend.ps1').read_bytes(), 'Troubleshoot.ps1': (APP / 'Troubleshoot.ps1').read_bytes(),
+               'SitlParams.ps1': (APP / 'SitlParams.ps1').read_bytes(),
                'SignalCore.ps1': core.encode('utf-8'),
                'models.json': json.dumps(models, indent=2).encode('utf-8'),
                'MotorMap.param': (ROOT / 'patches/MFE-FlightAxis-Signal-Patch-v1.0.0/MFE_PR158_QuadX_Servo_Map_ONLY.param').read_bytes()}
@@ -143,6 +144,7 @@ def main():
     tests = json.loads(testfile.read_text('utf-8'))
     assert tests['success'] and tests['backend_sha256'] == sha(entries['Backend.ps1']), 'Rerun installer tests before packaging'
     assert tests.get('troubleshoot_sha256') == sha(entries['Troubleshoot.ps1']), 'Rerun installer tests before packaging'
+    assert tests.get('sitlparams_sha256') == sha(entries['SitlParams.ps1']), 'Rerun installer tests before packaging'
     assert tests['program_sha256'] == sha((APP/'Program.cs').read_bytes()) and tests['selection_sha256'] == sha((APP/'TargetSelection.cs').read_bytes()), 'Rerun selection regression tests before packaging'
     verification['offline_tests'] = tests
     archive = ROOT / ('dist/SJARC-RealFlight-Setup-v' + VERSION + '.zip')
