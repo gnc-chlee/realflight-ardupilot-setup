@@ -1,4 +1,9 @@
-# SJ-ARC RealFlight VTOL 설치 도우미 v0.2.1 (시험 배포)
+# SJ-ARC RealFlight VTOL 설치 도우미 v0.2.2 (시험 배포)
+
+v0.2.2 (2026-10-08): Pioneer·Striver의 RealFlight SITL 파라미터(*_RF_SITL.param)를 도우미가 직접 만듭니다.
+모델 준비 때 받아 온 제조사 원본에 RealFlight용 변경만 더해 문서\RealFlight 9\.SJARC\Parameters에 둡니다.
+파라미터는 처음에 같은 파일을 두 번 불러와야 합니다. 새 SITL은 Q_ENABLE = 0이라 첫 번째에는 Q_ 항목이 빠지고,
+한 번만 불러오면 "Q_ASSIST_SPEED is not set"으로 ARM이 거부됩니다. 안내문과 가이드에 순서를 넣었습니다.
 
 v0.2.1 (2026-10-07): 5단계에 [SITL 시작 (flightaxis)] 버튼과 연결 구조 그림을 넣었습니다.
 버튼은 Mission Planner와 같은 명령으로 SITL을 켜되, 항상 flightaxis · 같은 파라미터 저장소 · Wipe 없이 켭니다.
@@ -159,7 +164,7 @@ ArduPilot 파라미터는 MP에서 적용 전에 별도로 전체 백업해야 �
 정전/강제종료/디스크 고장까지 자동 복구를 보장하지 않습니다. 백업은 보관하세요.
 
 작업 요청/보고서·검증된 다운로드 캐시는 LocalAppData\SJARC\RealFlightSetup\0.1.0 아래에 저장됩니다.
-v0.1.2~v0.2.1도 기존 0.1.0의 캐시 저장소를 재사용합니다. 실행 코드 자체는 내장 내용 해시별로 분리합니다.
+v0.1.2~v0.2.2도 기존 0.1.0의 캐시 저장소를 재사용합니다. 실행 코드 자체는 내장 내용 해시별로 분리합니다.
 보고서에는 Windows 사용자 경로가 포함될 수 있으니 공개 게시 전 확인하세요.
 도우미의 로컬 보고서는 서버에 자동 전송하지 않습니다.
 

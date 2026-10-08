@@ -6,10 +6,11 @@ $ProgressPreference = 'SilentlyContinue'
 [Console]::OutputEncoding = [Text.UTF8Encoding]::new($false)
 . (Join-Path $PSScriptRoot 'SignalCore.ps1')
 . (Join-Path $PSScriptRoot 'Troubleshoot.ps1')
+. (Join-Path $PSScriptRoot 'SitlParams.ps1')
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $Catalog = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'models.json') -Raw -Encoding UTF8 | ConvertFrom-Json
 $Utf8 = [Text.UTF8Encoding]::new($false)
-$Version = '0.2.1'
+$Version = '0.2.2'
 # Absolute root baked into all four PR 158 archives by the vendor's RealFlight 8 PC.
 $VendorPrefix = 'C:\Users\Administrator\Documents\RealFlight 8\'
 # RF 8/9 store the FlightAxis switch as FlightAxisLinkEnabled; Evolution as RealFlightLinkEnabled. Whichever exists is set.
@@ -642,7 +643,11 @@ function Setup($request) {
             Add-Plan $plans 'Root' ('RFX\SJARC\' + $m.Rfx) ([IO.File]::ReadAllBytes($src.Rfx))
             $statuses += @{Model=$m.Title; State='IMPORT_REQUIRED'; Rfx=(Inside $root ('RFX\SJARC\' + $m.Rfx))}
         }
-        Add-Plan $plans 'Root' ('.SJARC\Parameters\' + $m.Param) ([IO.File]::ReadAllBytes($src.Param))
+        $vendorParam = [IO.File]::ReadAllBytes($src.Param)
+        Add-Plan $plans 'Root' ('.SJARC\Parameters\' + $m.Param) $vendorParam
+        # Pioneer and Striver also get a RealFlight SITL file made from the verified original (SitlParams.ps1).
+        $rfSitl = New-RfSitlParam $m.Param $vendorParam
+        if ($rfSitl) { Add-Plan $plans 'Root' ('.SJARC\Parameters\' + $rfSitl.Name) $rfSitl.Bytes }
     }
     Add-Plan $plans 'Root' '.SJARC\Parameters\MFE_MotorMap_ONLY.param' ([IO.File]::ReadAllBytes((Join-Path $PSScriptRoot 'MotorMap.param')))
     $ini = Read-Text (Inside $root $rootInfo.Ini)

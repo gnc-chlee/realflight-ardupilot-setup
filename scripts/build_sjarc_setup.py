@@ -13,7 +13,7 @@ APP = ROOT / 'apps/SJARC-RealFlight-Setup'
 BUILD = ROOT / 'artifacts/sjarc-setup/build'
 BUILD.mkdir(parents=True, exist_ok=True)
 COMMIT = 'e93e185d4e22df48d6791fe45103b593f168946a'
-VERSION = '0.2.1'
+VERSION = '0.2.2'
 # MakeFlyEasy's original files (ArduPilot/SITL_Models PR #158) are not kept in this repository.
 # The build downloads them once into UPSTREAM and checks SHA-256, as the helper itself does at run time.
 UPSTREAM = ROOT / 'artifacts/mfe-four-models/upstream'
@@ -69,6 +69,7 @@ def payload():
     old = (ROOT / 'patches/MFE-FlightAxis-Signal-Patch-v1.0.0/Patch-MFE-Signals.ps1').read_text('utf-8')
     core = old[old.index('$Names = '):old.index('\ntry {\n    if (-not $RealFlightRoot')]
     entries = {'Backend.ps1': (APP / 'Backend.ps1').read_bytes(), 'Troubleshoot.ps1': (APP / 'Troubleshoot.ps1').read_bytes(),
+               'SitlParams.ps1': (APP / 'SitlParams.ps1').read_bytes(),
                'SignalCore.ps1': core.encode('utf-8'),
                'models.json': json.dumps(models, indent=2).encode('utf-8'),
                'MotorMap.param': (ROOT / 'patches/MFE-FlightAxis-Signal-Patch-v1.0.0/MFE_PR158_QuadX_Servo_Map_ONLY.param').read_bytes()}
@@ -107,6 +108,9 @@ def main():
                     'live_import_tested': False, 'live_flight_tested': False,
                     'ui_checks': 'v0.1.2 window launch smoke test (payload extraction + read-only detection). Target-selection rules covered by a headless C# harness; no multi-version native UI or live Import test.',
                     'network_checks': 'Pinned raw.githubusercontent.com URL re-fetched and SHA-256 checked; offline source folder (EXE folder) path covered by tests',
+                    'changes_in_0_2_2': ['Pioneer and Striver RealFlight SITL parameter files (*_RF_SITL.param) are made by the helper from the verified originals into .SJARC\\Parameters (SitlParams.ps1, shared with scripts/make-sitl-params.ps1); before, only the field USB kit had them',
+                                         'Parameter guidance: load the same file twice the first time (Q_ parameters only exist after Q_ENABLE = 1 and a restart, otherwise "Q_ASSIST_SPEED is not set")',
+                                         'Build downloads the MFE originals itself (pinned commit, SHA-256), so a fresh clone builds and tests'],
                     'changes_in_0_2_1': ['SITL step: Start SITL button runs Mission Planner\'s own flightaxis command line (same sitl\\flightaxis store, never --wipe) plus a UDP 14550 output that Mission Planner auto-connects to; refuses a second SITL and asks for RealFlight first',
                                          'SITL step: connection diagram (controller -> RealFlight <-> FlightAxis TCP 18083 <-> ArduPilot SITL <-> MAVLink TCP 5760 / UDP 14550 <-> Mission Planner)',
                                          'Log area collapses on the SITL, troubleshooting and help pages'],
@@ -143,6 +147,7 @@ def main():
     tests = json.loads(testfile.read_text('utf-8'))
     assert tests['success'] and tests['backend_sha256'] == sha(entries['Backend.ps1']), 'Rerun installer tests before packaging'
     assert tests.get('troubleshoot_sha256') == sha(entries['Troubleshoot.ps1']), 'Rerun installer tests before packaging'
+    assert tests.get('sitlparams_sha256') == sha(entries['SitlParams.ps1']), 'Rerun installer tests before packaging'
     assert tests['program_sha256'] == sha((APP/'Program.cs').read_bytes()) and tests['selection_sha256'] == sha((APP/'TargetSelection.cs').read_bytes()), 'Rerun selection regression tests before packaging'
     verification['offline_tests'] = tests
     archive = ROOT / ('dist/SJARC-RealFlight-Setup-v' + VERSION + '.zip')

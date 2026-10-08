@@ -7,7 +7,7 @@ Mission Planner의 ArduPilot SITL(FlightAxis)과 연결해 모의비행할 수 �
 ![연결 구조](docs/guide/img/09-diagram.png)
 
 - **내려받기:** [Releases](../../releases)의 `SJARC-RealFlight-Setup-v*.zip`
-- **인쇄용 가이드:** [사용 가이드 PDF](docs/guide/SJARC-사용가이드-v0.2.1.pdf) (아래 순서와 같은 내용, 11쪽)
+- **인쇄용 가이드:** [사용 가이드 PDF](docs/guide/SJARC-사용가이드-v0.2.2.pdf) (아래 순서와 같은 내용, 11쪽)
 
 ## 하는 일과 하지 않는 일
 
@@ -110,8 +110,8 @@ flightaxis가 아니면 RF 기체는 넘어지는데 MP 화면은 그대로이�
 | Fighter | ① `Fighter_VTOL_V4.4.4.param` (위 순서로 두 번) ② `MFE_MotorMap_ONLY.param` (마지막에 한 번) |
 | Hero | ① `Hero_VTOL_V4.4.4.param` (위 순서로 두 번) ② `MFE_MotorMap_ONLY.param` (마지막에 한 번) |
 
-> Pioneer · Striver의 `*_RF_SITL.param`은 지금은 현장 키트(USB)에만 들어 있습니다.
-> 다음 버전에서 도우미가 원본으로 직접 만들어 이 폴더에 넣도록 바꿀 예정입니다.
+Pioneer · Striver의 `*_RF_SITL.param`은 도우미가 받아 온 제조사 원본에 RealFlight용 변경(모터 3·4 번호 등)만 더해 만든 파일입니다.
+바뀐 항목은 파일 맨 위에 적혀 있습니다.
 
 - FLTMODE_CH는 조종기의 모드 스위치 채널로 맞춥니다(기본 8).
 - 기종을 바꿀 때마다 그 기종의 파일을 다시 불러옵니다.
