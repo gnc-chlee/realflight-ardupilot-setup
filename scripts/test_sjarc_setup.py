@@ -1,6 +1,5 @@
 """Installer regression tests use isolated mock RF data; they never import into a running RealFlight."""
 import hashlib
-import html
 import json
 import os
 from pathlib import Path
@@ -8,7 +7,6 @@ import re
 import shutil
 import subprocess
 import tempfile
-import time
 import unittest
 import urllib.request
 import zipfile
@@ -61,12 +59,12 @@ def free_drive():
     return next(c for c in 'RQSTUVWXYZMNOP' if not os.path.exists(c + ':\\'))
 
 
-def invoke(request, work):
+def invoke(request, work, env=None):
     file = work / ('request-' + str(len(list(work.glob('request-*')))) + '.json')
     file.write_text(json.dumps(request), encoding='utf-8')
     p = subprocess.run([str(PS), '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
                         '-File', str(BUILD / 'Backend.ps1'), '-RequestFile', str(file)],
-                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=120)
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=120, env=env)
     output = p.stdout.decode('utf-8-sig')
     try:
         result = json.loads(output)
@@ -137,9 +135,12 @@ class InstallerTests(unittest.TestCase):
         cls.rf9_exe = cls.metadata_dir / 'RealFlight.exe'
         subprocess.run([str(CSC), '/nologo', '/target:exe', '/out:' + str(cls.rf9_exe),
                         str(ROOT / 'scripts/fixtures/RealFlight9Metadata.cs')], check=True)
-        cls.fake_sitl_exe = cls.metadata_dir / 'FakeSitl.exe'
-        subprocess.run([str(CSC), '/nologo', '/target:exe', '/out:' + str(cls.fake_sitl_exe),
-                        str(ROOT / 'scripts/fixtures/FakeSitl.cs')], check=True)
+        cls.planner_183 = cls.metadata_dir / 'MP183' / 'MissionPlanner.exe'
+        cls.planner_182 = cls.metadata_dir / 'MP182' / 'MissionPlanner.exe'
+        for exe, define in ((cls.planner_183, ['/define:V183']), (cls.planner_182, [])):
+            exe.parent.mkdir()
+            subprocess.run([str(CSC), '/nologo', '/target:exe', '/out:' + str(exe)] + define +
+                           [str(ROOT / 'scripts/fixtures/FakePlanner.cs')], check=True)
 
     @classmethod
     def tearDownClass(cls):
@@ -175,8 +176,8 @@ class InstallerTests(unittest.TestCase):
         request.update(extra)
         return request
 
-    def run_request(self, req=None, success=True):
-        code, report = invoke(req or self.req(), self.work)
+    def run_request(self, req=None, success=True, env=None):
+        code, report = invoke(req or self.req(), self.work, env)
         self.assertEqual(code, 0 if success else 1, report)
         self.assertEqual(report['Success'], success, report)
         return report
@@ -698,70 +699,45 @@ class InstallerTests(unittest.TestCase):
         self.assertIsNone(empty['LinkEnabled'])
         self.assertIsNone(empty['ControllerSelected'])
 
-    def install_fake_sitl(self, mp):
-        target = mp / 'sitl' / 'ArduPlane.exe'
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(str(self.fake_sitl_exe), str(target))
-        return target
-
-    def sitl_record(self, mp):
-        record = mp / 'sitl' / 'flightaxis' / 'fake-sitl.txt'
-        for _ in range(100):
-            if record.exists() and record.stat().st_size:
-                break
-            time.sleep(0.1)
-        lines = record.read_text('utf-8').splitlines()
-        return lines[0], Path(lines[1])
-
-    def start_sitl(self, mp, success=True):
-        return self.run_request(dict(Action='StartSitl', MissionPlannerRoot=str(mp), StartPlanner=False, HideWindow=True), success=success)
-
-    def test_start_sitl_runs_flightaxis_in_its_store_with_udp_for_mission_planner(self):
+    def test_status_and_diagnose_flag_mission_planner_1_3_83_and_dev_sitl(self):
+        # Eumseong 2026-10-15: MP 1.3.83 quit right after connecting; an old dev SITL panicked when MP connected.
         mp = self.make_mp()
-        (mp / 'config.xml').write_text('<?xml version="1.0"?><Config><maplast_lat>37.2</maplast_lat><maplast_lng>127.4</maplast_lng></Config>', encoding='utf-8')
-        self.install_fake_sitl(mp)
-        rf = self.fake_sitl(self.work / 'rf' / 'RealFlightStandIn.exe')
-        try:
-            r = self.start_sitl(mp)
-            self.assertEqual(r['State'], 'SITL_STARTED')
-            line, cwd = self.sitl_record(mp)
-            for needle in ('-Mflightaxis', '-O37.2,127.4,0,0', '-s1', '--serial0 tcp:0', '--serial1 udpclient:127.0.0.1:14550'):
-                self.assertIn(needle, line)
-            self.assertNotIn('--wipe', line)
-            self.assertEqual(cwd, mp / 'sitl' / 'flightaxis')
-            self.assertTrue((mp / 'sitl' / 'flightaxis' / 'eeprom.bin').exists())
-            self.assertIsNone(r['AutoConnect'])  # no saved list: Mission Planner's default (UDP 14550 on) applies
-            self.assertIn('already running', self.start_sitl(mp, success=False)['Error'])
-            self.assertIs(self.run_request(dict(Action='Status', Root=''))['SitlFlightAxis'], True)
-        finally:
-            self.run_request(dict(Action='StopSitl', MissionPlannerRoot=str(mp)))
-            rf.communicate(b'done\r\n', timeout=10)
+        banner = b'MZ' + b'\0' * 4096 + b'ArduPlane V4.8.0-dev (cad79ca7)\0' + b'\0' * 64
+        (mp / 'sitl' / 'ArduPlane.exe').write_bytes(banner)
+        r = self.run_request(dict(Action='Status', Root='', MissionPlannerRoot=str(mp), PlannerExe=str(self.planner_183)))
+        self.assertEqual((r['PlannerVersion'], r['PlannerBroken'], r['SitlVersion'], r['SitlDev']), ('1.3.83.0', True, '4.8.0-dev', True))
+        d = self.run_request(dict(Action='Diagnose', MissionPlannerRoot=str(mp), PlannerExe=str(self.planner_183),
+                                  ReportFolder=str(self.work / 'reports')))
+        summary = '\n'.join(d['Summary'])
+        self.assertIn('MissionPlanner-1.3.82.msi', summary)
+        self.assertIn('개발판(ArduPlane V4.8.0-dev)', summary)
+        report = Path(d['ReportFile']).read_text('utf-8-sig')
+        self.assertIn('(버전 1.3.83.0)', report)
+        self.assertIn('ArduPlane SITL 버전: V4.8.0-dev (개발판)', report)
+        (mp / 'sitl' / 'ArduPlane.exe').write_bytes(b'MZ' + b'\0' * 4096 + b'ArduPlane V4.6.3 (3fc7011a)\0')
+        r = self.run_request(dict(Action='Status', Root='', MissionPlannerRoot=str(mp), PlannerExe=str(self.planner_182)))
+        self.assertEqual((r['PlannerVersion'], r['PlannerBroken'], r['SitlVersion'], r['SitlDev']), ('1.3.82.0', False, '4.6.3', False))
+        d = self.run_request(dict(Action='Diagnose', MissionPlannerRoot=str(mp), PlannerExe=str(self.planner_182),
+                                  ReportFolder=str(self.work / 'reports')))
+        summary = '\n'.join(d['Summary'])
+        self.assertNotIn('1.3.82.msi', summary)
+        self.assertNotIn('개발판', summary)
 
-    def test_start_sitl_reports_auto_connect_off_and_uses_default_home(self):
-        mp = self.make_mp()
-        listing = json.dumps([{'Label': 'Mavlink default port', 'Enabled': False, 'Port': 14550, 'Protocol': 1, 'Direction': 0, 'Format': 0}])
-        (mp / 'config.xml').write_text('<?xml version="1.0"?><Config><AutoConnect>' + html.escape(listing) + '</AutoConnect></Config>', encoding='utf-8')
-        self.install_fake_sitl(mp)
-        rf = self.fake_sitl(self.work / 'rf' / 'RealFlightStandIn.exe')
-        try:
-            r = self.start_sitl(mp)
-            self.assertIs(r['AutoConnect'], False)
-            self.assertTrue(any('auto-connect' in w for w in r['Warnings']), r['Warnings'])
-            self.assertTrue(any('18083' in w for w in r['Warnings']), r['Warnings'])  # the stand-in RealFlight does not listen
-            self.assertIn('-O-35.363261,149.16523,584,0', self.sitl_record(mp)[0])
-        finally:
-            self.run_request(dict(Action='StopSitl', MissionPlannerRoot=str(mp)))
-            rf.communicate(b'done\r\n', timeout=10)
-
-    def test_start_sitl_needs_the_downloaded_sitl_and_realflight(self):
-        mp = self.make_mp()
-        self.assertIn('No ArduPlane SITL', self.start_sitl(mp, success=False)['Error'])
-        self.install_fake_sitl(mp)
-        running = subprocess.run(['tasklist', '/FI', 'IMAGENAME eq RealFlight*'], stdout=subprocess.PIPE).stdout.decode('mbcs', 'replace')
-        if 'RealFlight' in running:
-            self.skipTest('a real RealFlight is running on this PC')
-        self.assertIn('Start RealFlight', self.start_sitl(mp, success=False)['Error'])
-        self.assertFalse((mp / 'sitl' / 'flightaxis' / 'fake-sitl.txt').exists())
+    def test_documents_on_onedrive_are_refused(self):
+        # Director's laptop at Eumseong: Documents moved into OneDrive. The helper only warns and refuses.
+        onedrive = self.work / 'OneDrive'
+        root = self.make_root(onedrive / 'Documents', 'RealFlight 9', 'RealFlight.ini')
+        env = dict(os.environ, OneDrive=str(onedrive))
+        before = self.snapshot(root)
+        r = self.run_request(self.req(Root=str(root)), success=False, env=env)
+        self.assertIn('inside OneDrive', r['Error'])
+        self.assertEqual(self.snapshot(root), before)
+        status = self.run_request(dict(Action='Status', Root='', DocumentsFolder=str(onedrive / 'Documents')), env=env)
+        self.assertIs(status['DocsOnOneDrive'], True)
+        local = self.run_request(dict(Action='Status', Root='', DocumentsFolder=str(self.work / 'Documents')), env=env)
+        self.assertIs(local['DocsOnOneDrive'], False)
+        d = self.run_request(dict(Action='Diagnose', DocumentsFolder=str(onedrive / 'Documents'), ReportFolder=str(self.work / 'reports')), env=env)
+        self.assertIn('OneDrive에 있습니다', '\n'.join(d['Summary']))
 
     def test_sitl_store_reset_moves_aside_and_restore_brings_it_back(self):
         mp = self.make_mp()

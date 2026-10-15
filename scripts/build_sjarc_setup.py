@@ -13,7 +13,7 @@ APP = ROOT / 'apps/SJARC-RealFlight-Setup'
 BUILD = ROOT / 'artifacts/sjarc-setup/build'
 BUILD.mkdir(parents=True, exist_ok=True)
 COMMIT = 'e93e185d4e22df48d6791fe45103b593f168946a'
-VERSION = '0.2.2'
+VERSION = '0.2.3'
 # MakeFlyEasy's original files (ArduPilot/SITL_Models PR #158) are not kept in this repository.
 # The build downloads them once into UPSTREAM and checks SHA-256, as the helper itself does at run time.
 UPSTREAM = ROOT / 'artifacts/mfe-four-models/upstream'
@@ -108,6 +108,11 @@ def main():
                     'live_import_tested': False, 'live_flight_tested': False,
                     'ui_checks': 'v0.1.2 window launch smoke test (payload extraction + read-only detection). Target-selection rules covered by a headless C# harness; no multi-version native UI or live Import test.',
                     'network_checks': 'Pinned raw.githubusercontent.com URL re-fetched and SHA-256 checked; offline source folder (EXE folder) path covered by tests',
+                    'changes_in_0_2_3': ['Status strip and diagnosis show the Mission Planner version and flag 1.3.83 (Debugger.Break in MAVLinkInterface.giveComport ends it right after connecting; use 1.3.82)',
+                                         'Diagnosis recognises RealFlight hanging mid-exchange (RF not responding + FlightAxis connection left open) and advises Automatic Reset Delay 10 s; the helper still writes 2 s',
+                                         'SITL development builds and several RealFlight / Mission Planner processes are flagged; the misleading many-TIME_WAIT warning is gone',
+                                         'Documents on OneDrive: warning and refusal only',
+                                         'Start SITL button removed: the SITL is started only from Mission Planner Simulation (Model = flightaxis, Skip Download)'],
                     'changes_in_0_2_2': ['Pioneer and Striver RealFlight SITL parameter files (*_RF_SITL.param) are made by the helper from the verified originals into .SJARC\\Parameters (SitlParams.ps1, shared with scripts/make-sitl-params.ps1); before, only the field USB kit had them',
                                          'Parameter guidance: load the same file twice the first time (Q_ parameters only exist after Q_ENABLE = 1 and a restart, otherwise "Q_ASSIST_SPEED is not set")',
                                          'Build downloads the MFE originals itself (pinned commit, SHA-256), so a fresh clone builds and tests'],

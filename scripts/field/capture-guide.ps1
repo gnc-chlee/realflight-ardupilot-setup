@@ -3,7 +3,7 @@
 # example data for an RF 9 target, so no real RealFlight folder is read or written and no personal path appears.
 # Only display code runs: no Prepare/Finalize/Restore/reset is invoked.
 param(
-    [string] $Exe = (Join-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) 'dist\SJARC-RealFlight-Setup-v0.2.2\SJARC-RealFlight-Setup.exe'),
+    [string] $Exe = (Join-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) 'dist\SJARC-RealFlight-Setup-v0.2.3\SJARC-RealFlight-Setup.exe'),
     [string] $OutDir = (Join-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) 'docs\guide\img')
 )
 $ErrorActionPreference = 'Stop'
@@ -37,8 +37,8 @@ function Status([string]$badge, [bool]$good, [object[]]$items) {
     $b = Field 'badge'; $b.Text = $badge
     $b.BackColor = if ($good) { [Drawing.Color]::FromArgb(226, 243, 234) } else { [Drawing.Color]::FromArgb(252, 242, 222) }
     $b.ForeColor = if ($good) { [Drawing.Color]::FromArgb(36, 121, 83) } else { [Drawing.Color]::FromArgb(166, 104, 0) }
-    $names = 'stLink', 'stPause', 'stController', 'stSitl'
-    for ($i = 0; $i -lt 4; $i++) { (Field $names[$i]).Set($items[$i][0], [string]$items[$i][1]) }
+    $names = 'stLink', 'stPause', 'stController', 'stSitl', 'stMp'
+    for ($i = 0; $i -lt $names.Count; $i++) { (Field $names[$i]).Set($items[$i][0], [string]$items[$i][1]) }
 }
 $green = [Drawing.Color]::FromArgb(36, 121, 83); $red = [Drawing.Color]::FromArgb(176, 42, 42); $amber = [Drawing.Color]::FromArgb(166, 104, 0); $gray = [Drawing.Color]::FromArgb(160, 168, 178)
 
@@ -63,7 +63,7 @@ $installs = Field 'installs'; $installs.Items.Clear(); [void]$installs.Items.Add
 $log = Field 'log'; $log.Clear()
 $stamp = '09:10:0'
 $log.AppendText("${stamp}2  RealFlight 실행 파일 1개, 사용자 폴더 1개 발견. Trainer / RealFlight-X 제외.`r`n")
-Status 'RF·MP 꺼짐 · 파일 작업 가능' $true @(@($green, 'RealFlight Link 켜짐'), @($green, '일시정지 꺼짐'), @($green, '조종기 선택됨'), @($gray, 'SITL 꺼짐 · 켜면 flightaxis 확인'))
+Status 'RF·MP 꺼짐 · 파일 작업 가능' $true @(@($green, 'RealFlight Link 켜짐'), @($green, '일시정지 꺼짐'), @($green, '조종기 선택됨'), @($gray, 'SITL 꺼짐 (4.6.3) · 켜면 flightaxis 확인'), @($green, 'MP 1.3.82.0'))
 (Field 'state').Text = '설치 확인 완료 · 대상과 모델을 확인한 뒤 진행하세요.'
 $steps = Field 'steps'
 [void](Invoke-Form 'ShowStep' @([int]0)); Shot '01-target.png'
@@ -89,7 +89,7 @@ $log.AppendText("09:18:05  백업: $root\.SJARC\Backups\20261001-091805-3f2a9c1d
 [void](Invoke-Form 'ShowStep' @([int]3)); Shot '04-finalize.png'
 
 # SITL step while Mission Planner runs SITL with flightaxis (example status).
-Status 'RF·MP 실행 중 · 파일 작업은 종료 후' $false @(@($green, 'RealFlight Link 켜짐'), @($green, '일시정지 꺼짐'), @($green, '조종기 선택됨'), @($green, 'SITL flightaxis로 실행 중'))
+Status 'RF·MP 실행 중 · 파일 작업은 종료 후' $false @(@($green, 'RealFlight Link 켜짐'), @($green, '일시정지 꺼짐'), @($green, '조종기 선택됨'), @($green, 'SITL flightaxis로 실행 중 (4.6.3)'), @($green, 'MP 1.3.82.0'))
 $t.GetField('statusBusy', $flags).SetValue($form, $true)   # keep ShowStep from refreshing over the example status
 (Field 'state').Text = 'SITL 연결 중 · 아래 상태 줄에서 flightaxis 여부를 확인하세요.'
 [void](Invoke-Form 'ShowStep' @([int]4)); Shot '05-sitl.png'
@@ -97,9 +97,10 @@ $t.GetField('statusBusy', $flags).SetValue($form, $true)   # keep ShowStep from 
 # Troubleshooting page with an example diagnosis summary.
 $tlog = Field 'tlog'; $tlog.Clear()
 $tlog.AppendText("10:02:11  [문제] SITL(PID 8124)이 RealFlight 연결 모델(flightaxis)이 아니라 `"plane`" 모델로 실행 중입니다. MP와 SITL을 닫고 Simulation에서 Model = flightaxis를 고른 뒤 다시 시작하세요.`r`n")
+$tlog.AppendText("10:02:11  [문제] RealFlight가 SITL과 데이터를 주고받다가 멈췄습니다. RF를 끝내고 다시 켠 뒤 Settings -> Physics -> Automatic Reset Delay를 10초로 늘리세요.`r`n")
 $tlog.AppendText("10:02:11  [확인] RealFlight 9: 조종기 입력 #17이(가) RF의 Reset 기능에 지정되어 있습니다. 연결 전에 해당 스위치 위치를 확인하세요.`r`n")
 $tlog.AppendText("10:02:11  진단 보고서: ...\reports\diagnose-20261001-100211.txt`r`n10:02:11  보낼 파일(zip): ...\reports\SJARC-diagnose-20261001-100211.zip`r`n")
-Status 'RF·MP 실행 중 · 파일 작업은 종료 후' $false @(@($green, 'RealFlight Link 켜짐'), @($green, '일시정지 꺼짐'), @($green, '조종기 선택됨'), @($red, 'SITL이 flightaxis 아님 → Model 다시 선택'))
+Status 'RF·MP 실행 중 · 파일 작업은 종료 후' $false @(@($green, 'RealFlight Link 켜짐'), @($green, '일시정지 꺼짐'), @($green, '조종기 선택됨'), @($red, 'SITL이 flightaxis 아님 → Model 다시 선택'), @($green, 'MP 1.3.82.0'))
 (Field 'state').Text = '진단 완료 · 파일과 설정은 바꾸지 않았습니다.'
 [void](Invoke-Form 'ShowStep' @([int]5)); Shot '06-trouble.png'
 
@@ -113,9 +114,9 @@ function Strip-Crop {
     $screen = $strip.RectangleToScreen((New-Object Drawing.Rectangle 0, 0, ([Math]::Min($right + 16, $strip.ClientSize.Width)), $strip.ClientSize.Height))
     New-Object Drawing.Rectangle ($screen.X - $form.Left), ($screen.Y - $form.Top), $screen.Width, $screen.Height
 }
-Status 'RF·MP 꺼짐 · 파일 작업 가능' $true @(@($green, 'RealFlight Link 켜짐'), @($green, '일시정지 꺼짐'), @($green, '조종기 선택됨'), @($green, 'SITL flightaxis로 실행 중'))
+Status 'RF·MP 꺼짐 · 파일 작업 가능' $true @(@($green, 'RealFlight Link 켜짐'), @($green, '일시정지 꺼짐'), @($green, '조종기 선택됨'), @($green, 'SITL flightaxis로 실행 중 (4.6.3)'), @($green, 'MP 1.3.82.0'))
 Shot '07-status-good.png' (Strip-Crop)
-Status 'RF·MP 실행 중 · 파일 작업은 종료 후' $false @(@($red, 'RealFlight Link 꺼짐'), @($red, '일시정지 켜짐 (꺼야 함)'), @($amber, '조종기 선택 기록 없음'), @($red, 'SITL이 flightaxis 아님 → Model 다시 선택'))
+Status 'RF·MP 실행 중 · 파일 작업은 종료 후' $false @(@($red, 'RealFlight Link 꺼짐'), @($red, '일시정지 켜짐 (꺼야 함)'), @($amber, '조종기 선택 기록 없음'), @($red, 'SITL이 flightaxis 아님 → Model 다시 선택'), @($red, 'MP 1.3.83.0 → 1.3.82로 바꾸기'))
 Shot '08-status-bad.png' (Strip-Crop)
 # Connection diagram on its own at twice the design size, for the printed guide.
 $diagram = [Activator]::CreateInstance($asm.GetType('SJARC.ConnectionDiagram'))

@@ -7,7 +7,7 @@ Mission Planner의 ArduPilot SITL(FlightAxis)과 연결해 모의비행할 수 �
 ![연결 구조](docs/guide/img/09-diagram.png)
 
 - **내려받기:** [Releases](../../releases)의 `SJARC-RealFlight-Setup-v*.zip`
-- **인쇄용 가이드:** [사용 가이드 PDF](docs/guide/SJARC-사용가이드-v0.2.2.pdf) (아래 순서와 같은 내용, 11쪽)
+- **인쇄용 가이드:** [사용 가이드 PDF](docs/guide/SJARC-사용가이드-v0.2.3.pdf) (아래 순서와 같은 내용, 11쪽)
 
 ## 하는 일과 하지 않는 일
 
@@ -17,7 +17,7 @@ Mission Planner의 ArduPilot SITL(FlightAxis)과 연결해 모의비행할 수 �
 | RF 기체 파일의 리프트 모터 신호(CH8~12) 보정 | 조종기 보정, 드라이버 설치 |
 | RF 설정: RealFlight Link 켜기, 일시정지 끄기, 자동 리셋 2초 | SITL 파라미터 자동 적용 (Mission Planner에서 직접) |
 | 바꾸기 전 파일 백업과 되돌리기 | PID · 공력 · 조종기 프로필 변경 |
-| [SITL 시작] 버튼, 연결 문제 진단과 되돌릴 수 있는 초기화 | |
+| 상태 줄: Mission Planner·SITL 버전 확인, 연결 문제 진단과 되돌릴 수 있는 초기화 | SITL 실행 (Mission Planner Simulation 탭에서 직접) |
 
 시뮬레이터 전용입니다. 이 프로그램의 파라미터 파일을 실제 기체에 넣지 마세요.
 
@@ -25,7 +25,10 @@ Mission Planner의 ArduPilot SITL(FlightAxis)과 연결해 모의비행할 수 �
 
 ### 0. 준비
 
-- Windows 10/11, 정품 RealFlight 8 / 9.5 / Evolution, Mission Planner, 조종기(USB 조이스틱 모드, 예: TX16S)가 필요합니다.
+- Windows 10/11, 정품 RealFlight 8 / 9.5 / Evolution, Mission Planner **1.3.82**, 조종기(USB 조이스틱 모드, 예: TX16S)가 필요합니다.
+  Mission Planner 1.3.83은 SITL에 연결된 직후 스스로 꺼지는 버그가 있습니다(Mission Planner 쪽 수정은 아직 정식 배포 전).
+  1.3.83이 깔려 있으면 제거하고 [1.3.82](https://firmware.ardupilot.org/Tools/MissionPlanner/MissionPlanner-1.3.82.msi)를 설치한 뒤, 업데이트를 물으면 '아니오'를 누릅니다.
+- 문서 폴더가 OneDrive에 있는 PC에는 설치할 수 없습니다(도우미가 경고하고 멈춥니다).
 - RealFlight를 한 번 실행했다가 완전히 종료합니다. 문서 폴더가 이때 만들어집니다.
 - RealFlight · Mission Planner · SITL(검은 창)을 모두 끄고, 실제 비행 컨트롤러는 분리합니다.
 - 조종기를 USB로 연결하고 RealFlight에서 선택·보정해 둡니다.
@@ -36,7 +39,7 @@ Mission Planner의 ArduPilot SITL(FlightAxis)과 연결해 모의비행할 수 �
 
 <img src="docs/guide/img/01-target.png" width="720" alt="1단계 대상 확인 화면">
 
-- 왼쪽 단계 목록을 위에서부터 따라갑니다. 아래 상태 줄은 RealFlight Link · 일시정지 · 조종기 · SITL 상태를 늘 보여 줍니다.
+- 왼쪽 단계 목록을 위에서부터 따라갑니다. 아래 상태 줄은 RealFlight Link · 일시정지 · 조종기 · SITL · Mission Planner 버전을 늘 보여 줍니다.
 - 사용할 RealFlight 실행 파일과 문서 폴더(예: `문서\RealFlight 9`)를 확인합니다. 목록이 비어 있으면 **실행 파일 직접 선택**으로 고릅니다.
 - RealFlight가 여러 버전 설치된 PC에서는 이번에 설정할 버전 하나만 고릅니다. RF 9와 Evolution을 동시에 켜지 마세요(둘 다 포트 18083을 씁니다).
 
@@ -75,20 +78,25 @@ Import가 필요한 기종마다 반복합니다.
 | RealFlight Link | Yes |
 | Pause Sim When in Background | No |
 | Pause Sim When in Menu | No |
-| Automatic Reset Delay | 2.0 |
+| Automatic Reset Delay | 2.0 (SITL 연결 중 RF가 멈추는 PC는 10) |
 
 ### 5. SITL 연결
 
 <img src="docs/guide/img/05-sitl.png" width="720" alt="5단계 SITL 연결 화면">
 
-1. RealFlight를 켜고 기체를 고릅니다.
-2. 도우미 5단계에서 **SITL 시작 (flightaxis)** 을 누릅니다. 항상 flightaxis로, 같은 파라미터 저장소로, Wipe 없이 켭니다.
-3. Mission Planner가 꺼져 있으면 도우미가 켜고, MP가 UDP 14550으로 스스로 연결합니다. 오른쪽 위 단추가 DISCONNECT로 바뀌면 연결된 것입니다.
-4. RF에서 스페이스바(리셋)를 눌러 "FlightAxis Controller Device has been activated"가 나오는지 봅니다.
-5. 끌 때는 **SITL 종료**를 누르고, RealFlight는 마지막에 끕니다.
+SITL은 Mission Planner의 Simulation 탭 한 가지 방법으로 켭니다.
 
-Mission Planner의 Simulation 탭에서 직접 켤 때는 **Model = flightaxis**를 꼭 고르고 Wipe는 체크하지 마세요.
-flightaxis가 아니면 RF 기체는 넘어지는데 MP 화면은 그대로이고(배터리 12.60V 고정), 비행모드가 MANUAL · FBWA만 보입니다.
+1. RealFlight를 켜고 기체를 고릅니다. 기체가 넘어진 채 **가만히 있을 때**(리셋 중이 아닐 때) 다음으로 갑니다.
+2. Mission Planner를 켜고 **Simulation** 탭으로 갑니다. 탭이 안 보이면 Config → Planner → Layout을 Advanced로 바꿉니다.
+3. **Model = flightaxis**를 고르고 **Skip Download**를 체크한 뒤 **Plane** 아이콘을 누릅니다. Wipe는 체크하지 않습니다.
+4. MP가 SITL을 켜고 스스로 연결합니다. 오른쪽 위 CONNECT는 누르지 않습니다.
+5. RF에서 스페이스바(리셋)를 눌러 "FlightAxis Controller Device has been activated"가 나오는지 봅니다.
+6. 끌 때는 Mission Planner(SITL)를 먼저 끄고, RealFlight는 마지막에 끕니다.
+
+- flightaxis가 아니면 RF 기체는 넘어지는데 MP 화면은 그대로이고(배터리 12.60V 고정), 비행모드가 MANUAL · FBWA만 보입니다.
+- Skip Download를 체크하지 않으면 MP가 SITL을 다시 받습니다. 버전을 물으면 **Stable**을 고릅니다. 개발판(Latest/Dev) SITL은 MP가 붙자마자 `PANIC ... Location cannot be (0, 0, 0)`으로 멈춘 일이 있습니다.
+- SITL 검은 창 안은 클릭하지 마세요. 창 제목에 "선택"이 붙으면 SITL이 멈추고 RF도 따라 멈춥니다. Esc를 누르면 풀립니다.
+- 연결 중 RealFlight가 "응답 없음"이 되면 Settings → Physics → **Automatic Reset Delay를 10초**로 늘립니다. SITL이 붙는 도중 RF 자동 리셋이 겹치면 멈춥니다.
 
 ### 6. SITL 파라미터 적용
 
@@ -97,7 +105,7 @@ flightaxis가 아니면 RF 기체는 넘어지는데 MP 화면은 그대로이�
 
 1. DISARM 상태의 SITL에 연결된 것을 확인합니다.
 2. **CONFIG → Full Parameter List → Load from file**로 기종 파일을 고르고 **Write Params**를 누릅니다.
-3. SITL을 다시 시작합니다(도우미 **SITL 종료 → SITL 시작**). MP가 다시 연결되면 **Refresh Params**를 누릅니다.
+3. SITL을 다시 시작합니다(SITL 검은 창을 닫고 Simulation 탭에서 Plane을 다시 누름). MP가 다시 연결되면 **Refresh Params**를 누릅니다.
 4. 같은 파일로 **Load from file → Write Params**를 한 번 더 하고 SITL을 다시 시작합니다.
 5. Full Parameter List에서 Q_ASSIST_SPEED가 14(Fighter는 12)인지 확인합니다.
 
@@ -133,7 +141,10 @@ Pioneer · Striver의 `*_RF_SITL.param`은 도우미가 받아 온 제조사 원
 | RealFlight Link | 켜짐 | RF Physics에서 RealFlight Link = Yes, 또는 4단계 다시 실행 |
 | 일시정지 | 꺼짐 | 두 Pause 항목을 No로 (켜져 있으면 MP를 클릭할 때 RF가 멈춤) |
 | 조종기 | 선택됨 | RF에서 조종기를 선택·보정 |
-| SITL | flightaxis로 실행 중 | MP·SITL을 닫고 [SITL 시작]으로 다시 켜기 |
+| SITL | flightaxis로 실행 중 (버전) | flightaxis 아님: MP·SITL을 닫고 Model = flightaxis로 다시 켜기 · 개발판: Stable로 다시 받기 |
+| Mission Planner | 1.3.82 등 | 1.3.83: 제거하고 1.3.82 설치 |
+
+오른쪽 위 표시에 "RealFlight N개 실행 중"이 나오면, 멈췄던 RF가 작업 관리자에 남아 있는 것입니다. 모두 끝내거나 재부팅하세요.
 
 ## 연결 문제 해결
 
@@ -142,7 +153,8 @@ Pioneer · Striver의 `*_RF_SITL.param`은 도우미가 받아 온 제조사 원
 SITL 연결 중 RealFlight가 "응답 없음"이 되거나, 처음 설정한 뒤로 연결이 안 될 때 위에서부터 하나씩 합니다.
 
 1. RF가 멈춘 상태에서 **① 진단 보고서 만들기**를 누르고, SITL 검은 창을 사진으로 찍어 둡니다. 진단은 읽기만 합니다.
-2. RF와 MP를 닫고 **② 남은 SITL 창 종료**를 누른 뒤 다시 연결합니다.
+2. RF와 MP를 닫고 **② 남은 SITL 창 종료**를 누릅니다. 작업 관리자에 남은 RealFlight도 끝냅니다(또는 재부팅).
+   RF의 **Automatic Reset Delay를 10초**로 늘리고 다시 연결합니다.
 3. 계속 멈추면 **③ SITL 저장 설정 초기화**를 누르고, 파라미터를 넣기 전에 연결부터 확인합니다.
 4. 그래도 멈추면 **④ RealFlight 설정 초기화**(최후 수단)를 누르고 조종기와 Physics 설정을 다시 합니다.
 5. 해결되지 않으면 되돌리기 버튼으로 원래대로 돌리고 [Issues](../../issues)에 증상을 남겨 주세요.
@@ -154,7 +166,12 @@ SITL 연결 중 RealFlight가 "응답 없음"이 되거나, 처음 설정한 뒤
 
 | 증상 | 원인 | 해결 |
 |---|---|---|
-| RF 기체는 넘어지는데 MP 화면은 그대로, 배터리 12.60V | Model을 flightaxis로 고르지 않음 | [SITL 시작]으로 다시 켜기 |
+| 연결 직후 Mission Planner가 꺼짐 | Mission Planner 1.3.83 버그 | 1.3.82 설치, 업데이트는 '아니오' |
+| 연결 중 RealFlight "응답 없음", MP는 "no heartbeat packets received" | SITL이 붙는 도중 RF 자동 리셋(2초)이 겹침 | RF 끝내고 Automatic Reset Delay = 10 |
+| SITL 창에 `PANIC ... Location cannot be (0, 0, 0)` 후 종료 | 개발판 SITL | Simulation에서 Stable로 다시 받고 Skip Download 체크 |
+| SITL 창 제목에 "선택", RF와 MP가 같이 멈춤 | SITL 창 안을 클릭함 | Esc |
+| 도우미에 "RealFlight N개 실행 중" | 멈췄던 RF가 작업 관리자에 남음 | 모두 끝내거나 재부팅 |
+| RF 기체는 넘어지는데 MP 화면은 그대로, 배터리 12.60V | Model을 flightaxis로 고르지 않음 | Model = flightaxis로 다시 켜기 |
 | 껐다 켜니 비행모드가 MANUAL · FBWA만 보임 | 다른 Model로 켜져 다른 파라미터 저장소를 씀 | flightaxis로 다시 켜기 |
 | SITL 연결 전 RF 기체가 계속 뒤집히고 리셋됨 | 연결 전에는 조종기 채널 값으로 모터가 돎 | SITL을 연결하면 멈춤(정상) |
 | Import 중 "This battery is in use" | MFE 기체가 선택된 채 Import | 기본 기체를 고른 뒤 Import |

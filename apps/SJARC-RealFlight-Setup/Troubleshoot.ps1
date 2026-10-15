@@ -107,7 +107,14 @@ function Diag-Processes {
     }
     if (-not @($rf + $mp + $sitl).Count) { Diag-Line '  RealFlight / Mission Planner / SITL 모두 실행 중이 아님' }
     foreach ($p in $hung) { Diag-Find '문제' ($p.ProcessName + '(PID ' + $p.Id + ')가 지금 "응답 없음" 상태입니다. 이 보고서를 저장한 뒤 작업 관리자에서 끝내세요.') }
-    if ($rf.Count -gt 1) { Diag-Find '문제' ('RealFlight가 ' + $rf.Count + '개 실행 중입니다. RF 9와 Evolution은 같은 FlightAxis 포트(18083)를 쓰므로 하나만 켜세요.') }
+    $script:DiagRfHung = [bool]@($hung | Where-Object { $_.ProcessName -match '^RealFlight' }).Count
+    foreach ($group in @(@('RealFlight', $rf), @('Mission Planner', $mp))) {
+        $list = @($group[1])
+        if ($list.Count -le 1) { continue }
+        # Seen at Eumseong 2026-10-15: RealFlight windows closed while "Not Responding" left processes without a window.
+        $ghost = @($list | Where-Object { try { $_.MainWindowHandle -eq [IntPtr]::Zero } catch { $false } }).Count
+        Diag-Find '문제' ($group[0] + '가 ' + $list.Count + '개 실행 중입니다' + $(if ($ghost) { '(창 없이 남은 것 ' + $ghost + '개: 멈췄던 프로그램이 완전히 꺼지지 않은 것)' } else { '' }) + '. 작업 관리자 -> 세부 정보에서 모두 끝내거나 PC를 재부팅한 뒤 하나만 켜세요. RF 9와 Evolution도 같은 FlightAxis 포트(18083)를 씁니다.')
+    }
     if ($sitl.Count -gt 1) { Diag-Find '문제' ('SITL(ArduPlane 등)이 ' + $sitl.Count + '개 실행 중입니다. 여러 SITL이 한 RealFlight에 동시에 붙으면 RF가 멈출 수 있습니다. "남은 SITL 창 종료"를 누르세요.') }
     elseif ($sitl.Count -eq 1 -and -not $mp.Count) { Diag-Find '확인' 'Mission Planner 없이 SITL 창만 남아 있습니다. 다음 연결 전에 "남은 SITL 창 종료"로 닫으세요.' }
     # A SITL started with a built-in physics model (e.g. -Mplane) never talks to RealFlight: Mission Planner shows a
@@ -150,8 +157,12 @@ function Diag-Network {
     elseif ($script:DiagRfRunning -and $script:DiagFlightAxisSitl -and -not $fa.Count) { Diag-Find '확인' 'RealFlight와 SITL(flightaxis)이 모두 켜져 있는데 둘 사이의 18083 연결 흔적이 없습니다. SITL 검은 창에 "connect failed"가 반복되는지 확인하세요.' }
     $timeWait = @($conns | Where-Object { [string]$_.State -eq 'TimeWait' }).Count
     Diag-Line ('  전체 TIME_WAIT: ' + $timeWait)
+    # FlightAxis opens a new TCP connection for every exchange, so thousands of TIME_WAIT entries are normal while it runs.
+    # A hung RealFlight with a connection it never closed (CloseWait) is the Eumseong 2026-10-15 pattern: an RF auto-reset
+    # (Automatic Reset Delay 2 s after the aircraft tipped over) collided with the SITL taking over; 10 s cured it.
     $faWait = @($fa | Where-Object { [string]$_.State -eq 'TimeWait' }).Count
-    if ($faWait -gt 2000) { Diag-Find '확인' ('RealFlight(18083)와 짧은 연결이 ' + $faWait + '개 쌓여 있습니다. SITL이 연결을 계속 다시 맺고 있다는 뜻입니다. 이 보고서와 SITL 검은 창 사진을 함께 보관하세요.') }
+    $closeWait = @($fa | Where-Object { [string]$_.State -eq 'CloseWait' }).Count
+    if ($script:DiagRfHung -and $fa.Count) { Diag-Find '문제' ('RealFlight가 SITL과 데이터를 주고받다가 멈췄습니다(짧은 연결 ' + $faWait + '개 뒤 응답 없음' + $(if ($closeWait) { ', 끝나지 않은 연결 ' + $closeWait + '개' } else { '' }) + '). SITL이 붙는 도중 RF 자동 리셋이 겹치면 이렇게 멈춥니다. RF를 끝내고 다시 켠 뒤 Settings -> Physics -> Automatic Reset Delay를 10초로 늘리고, 기체가 넘어진 채 가만히 있을 때 SITL을 연결하세요.') }
     Diag-Try 'dynamic ports' {
         # netsh labels are localized (OEM code page); keep only the numbers: start port, number of ports.
         $numbers = @(& netsh.exe int ipv4 show dynamicport tcp 2>$null | ForEach-Object { [regex]::Match([string]$_, '(\d+)\s*$').Groups[1].Value } | Where-Object { $_ })
@@ -265,12 +276,19 @@ function Diag-Models([string]$root, [string]$label) {
 function Diag-MissionPlanner($request) {
     $mp = Mp-Root $request
     Diag-Line ('[Mission Planner / SITL] ' + $mp)
+    $plannerExe = Planner-Program $request
+    $plannerVersion = Planner-Version $plannerExe
+    Diag-Line ('  Mission Planner 프로그램: ' + $(if ($plannerExe) { $plannerExe + ' (버전 ' + $(if ($plannerVersion) { $plannerVersion } else { '알 수 없음' }) + ')' } else { '찾지 못함' }))
+    if (Planner-Broken $plannerVersion) { Diag-Find '문제' ('Mission Planner ' + $plannerVersion + '입니다. 1.3.83은 SITL에 연결된 직후 스스로 종료되는 버그가 있습니다(음성 현장 확인, Mission Planner 쪽 수정은 아직 정식 배포 전). Mission Planner를 제거하고 1.3.82(https://firmware.ardupilot.org/Tools/MissionPlanner/MissionPlanner-1.3.82.msi)를 설치한 뒤, 업데이트를 물으면 "아니오"를 누르세요.') }
     if (-not [IO.Directory]::Exists($mp)) { Diag-Line '  Mission Planner 사용자 폴더 없음'; Diag-Line ''; return }
     $config = [IO.Path]::Combine($mp, 'config.xml')
     if ([IO.File]::Exists($config)) { Diag-Line ('  ' + (File-Line $config)) }
     $sitl = [IO.Path]::Combine($mp, 'sitl')
     if (-not [IO.Directory]::Exists($sitl)) { Diag-Line '  sitl 폴더 없음 (Mission Planner에서 SITL을 아직 실행하지 않음)'; Diag-Line ''; return }
     foreach ($exe in @(Get-ChildItem -LiteralPath $sitl -File -Filter '*.exe' -ErrorAction SilentlyContinue)) { Diag-Line ('  ' + (File-Line $exe.FullName)) }
+    $sitlVersion = Sitl-Version ([IO.Path]::Combine($sitl, 'ArduPlane.exe'))
+    if ($sitlVersion) { Diag-Line ('  ArduPlane SITL 버전: V' + $sitlVersion + $(if (Sitl-Dev $sitlVersion) { ' (개발판)' } else { '' })) }
+    if (Sitl-Dev $sitlVersion) { Diag-Find '확인' ('SITL이 개발판(ArduPlane V' + $sitlVersion + ')입니다. 음성 현장에서 개발판 SITL이 Mission Planner가 붙자마자 "PANIC: ... Location cannot be (0, 0, 0)"으로 멈춘 일이 있었습니다. Mission Planner Simulation 탭에서 Plane을 누를 때 Stable(정식판)을 골라 다시 받고, 그다음부터는 Skip Download를 체크해 두세요.') }
     foreach ($git in @(Get-ChildItem -LiteralPath $sitl -File -Filter '*-git.txt' -ErrorAction SilentlyContinue)) {
         $lines = @([IO.File]::ReadAllLines($git.FullName) | Where-Object { $_.Trim() })
         Diag-Line ('  ' + $git.Name + ': ' + (@($lines | Where-Object { $_ -match '^commit ' } | Select-Object -First 1) -join '') + ' / ' + (@($lines | Select-Object -Last 1) -join '').Trim() + ' / ' + $git.LastWriteTime.ToString('yyyy-MM-dd HH:mm'))
@@ -360,17 +378,25 @@ function Quick-Status($request) {
             }
         } catch { }
     }
+    $rfCount = @($all | Where-Object { $_.ProcessName -match '^RealFlight' }).Count
+    $plannerVersion = Planner-Version (Planner-Program $request)
+    $sitlVersion = Sitl-Version ([IO.Path]::Combine((Mp-Root $request), 'sitl', 'ArduPlane.exe'))
     return @{ Success = $true; Version = $Version; State = 'STATUS'; Ini = $iniName
-        RfRunning = (@($all | Where-Object { $_.ProcessName -match '^RealFlight' }).Count -gt 0)
+        RfRunning = ($rfCount -gt 0); RfCount = $rfCount
         MpRunning = (@($all | Where-Object { $_.ProcessName -match '^MissionPlanner' }).Count -gt 0)
         SitlRunning = ($sitl.Count -gt 0); SitlFlightAxis = $flightAxis
-        LinkEnabled = $link; PauseOn = $pause; ControllerSelected = $controller }
+        LinkEnabled = $link; PauseOn = $pause; ControllerSelected = $controller
+        PlannerVersion = $plannerVersion; PlannerBroken = (Planner-Broken $plannerVersion)
+        SitlVersion = $sitlVersion; SitlDev = (Sitl-Dev $sitlVersion)
+        DocsOnOneDrive = (Under-OneDrive (Documents-Folder $request)) }
 }
 function Diagnose($request) {
     $script:DiagReport = [Collections.Generic.List[string]]::new()
     $script:DiagFindings = [Collections.Generic.List[object]]::new()
-    $script:DiagRfRunning = $false; $script:DiagFlightAxisSitl = $false
+    $script:DiagRfRunning = $false; $script:DiagFlightAxisSitl = $false; $script:DiagRfHung = $false
     $now = Get-Date
+    $documents = Documents-Folder $request
+    if (Under-OneDrive $documents) { Diag-Find '문제' ('문서 폴더가 OneDrive에 있습니다(' + $documents + '). 이 PC에는 설치할 수 없습니다. RealFlight와 Mission Planner가 문서 폴더에 계속 쓰는 파일을 OneDrive가 동기화하면서 잠그거나 깨뜨릴 수 있습니다.') }
     Diag-Line ('SJ-ARC 설치 도우미 v' + $Version + ' - RealFlight/SITL 연결 진단 보고서')
     Diag-Line ('작성: ' + $now.ToString('yyyy-MM-dd HH:mm:ss') + '   (읽기 전용: 이 진단은 어떤 파일·설정도 바꾸지 않습니다)')
     Diag-Line ''
@@ -410,7 +436,10 @@ function Diagnose($request) {
     Diag-Line '================ 다음 순서 (위에서부터 하나씩) ================'
     Diag-Line '1. RealFlight가 "응답 없음"이면: 창을 닫기 전에 이 진단을 먼저 만들고, SITL 검은 창(ArduPlane)을 사진으로 찍어 두세요.'
     Diag-Line '   "Starting controller" 줄이 계속 반복되면 RF가 리셋될 때마다 SITL이 다시 연결하고 있다는 뜻입니다.'
-    Diag-Line '2. 모두 종료 -> "남은 SITL 창 종료" -> 켜는 순서: RealFlight(기체 선택까지) -> Mission Planner -> Simulation 연결.'
+    Diag-Line '   검은 창 제목에 "선택"이 붙어 있으면 창 안을 클릭해 SITL이 멈춘 것입니다. Esc를 누르세요.'
+    Diag-Line '2. 모두 종료(창 없이 남은 RealFlight·Mission Planner도 작업 관리자에서 끝내기 또는 재부팅) -> "남은 SITL 창 종료".'
+    Diag-Line '   RF Settings -> Physics -> Automatic Reset Delay를 10초로 늘립니다(음성 현장에서 2초일 때 연결 중 RF가 멈췄음).'
+    Diag-Line '   켜는 순서: RealFlight(기체 선택, 넘어진 채 가만히 있는지 확인) -> Mission Planner 1.3.82 -> Simulation 탭: Model = flightaxis, Skip Download 체크 -> Plane.'
     Diag-Line '   끌 때는 Mission Planner(SITL)를 먼저 끄고 RealFlight를 마지막에 끄세요.'
     Diag-Line '3. 그래도 멈추면 "SITL 저장 설정 초기화". 파라미터를 넣기 전에 먼저 연결만 확인합니다.'
     Diag-Line '   - 초기화 직후에도 멈춤: SITL 파라미터 문제가 아닙니다 -> 4번으로.'
@@ -453,7 +482,7 @@ function Diagnose($request) {
         Message = 'Read-only diagnosis. No file or setting was changed.' }
 }
 
-# ---------------------------------------------------------------- SITL launcher
+# ---------------------------------------------------------------- Mission Planner / SITL versions, OneDrive
 function Planner-Exe {
     foreach ($key in 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*', 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*') {
         foreach ($entry in @(Get-ItemProperty $key -ErrorAction SilentlyContinue | Where-Object { $_.PSObject.Properties['DisplayName'] -and [string]$_.DisplayName -match '^Mission Planner' })) {
@@ -470,77 +499,48 @@ function Planner-Exe {
     }
     return ''
 }
-function Planner-Setting([string]$xml, [string]$name) {
-    $m = [regex]::Match($xml, '<' + [regex]::Escape($name) + '>([^<]*)</' + [regex]::Escape($name) + '>')
-    if ($m.Success) { return [Net.WebUtility]::HtmlDecode($m.Groups[1].Value) }
+function Planner-Program($request) {
+    # The running Mission Planner is the one in use; otherwise the installed one. Tests pass PlannerExe.
+    $given = Request-Text $request 'PlannerExe'
+    if ($given) { return $given }
+    foreach ($p in @(Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -match '^MissionPlanner' })) {
+        try { if ($p.Path) { return [string]$p.Path } } catch { }
+    }
+    return Planner-Exe
+}
+function Planner-Version([string]$exe) {
+    if (-not $exe -or -not [IO.File]::Exists($exe)) { return $null }
+    try { $v = [Diagnostics.FileVersionInfo]::GetVersionInfo($exe).FileVersion } catch { return $null }
+    if ($v) { return ([string]$v).Trim() }
     return $null
 }
-function Planner-AutoConnect([string]$xml) {
-    # Mission Planner 1.3.8x listens for MAVLink on UDP 14550 ("Mavlink default port", on by default) and connects by
-    # itself. $null = no saved list (default applies), $false = the user turned that entry off.
-    $saved = Planner-Setting $xml 'AutoConnect'
-    if (-not $saved) { return $null }
-    # Windows PowerShell's ConvertFrom-Json emits a JSON array as one object; unroll it before filtering.
-    try { $parsed = $saved | ConvertFrom-Json } catch { return $null }
-    $entry = @(@($parsed) | ForEach-Object { $_ } | Where-Object { $_.Port -eq 14550 -and $_.Protocol -eq 1 -and $_.Direction -eq 0 })
-    if (-not $entry.Count) { return $false }
-    return [bool]$entry[0].Enabled
+# Mission Planner 1.3.83 calls Debugger.Break() when two tasks claim the link at once (MAVLinkInterface.giveComport,
+# hit by the camera request right after connecting). Without a debugger that ends Mission Planner (Eumseong 2026-10-15);
+# 1.3.82 only logs it, and the fix (MP commit 8cdd00f) is not in a release yet.
+function Planner-Broken([string]$version) { return [bool]($version -and $version -match '^1\.3\.83(\.|$)') }
+function Sitl-Version([string]$exe) {
+    # The SITL binary carries its banner, e.g. "ArduPlane V4.6.3 (...)" or "ArduPlane V4.8.0-dev (cad79ca7)".
+    if (-not $exe -or -not [IO.File]::Exists($exe)) { return $null }
+    try { $text = $ByteEncoding.GetString([IO.File]::ReadAllBytes($exe)) } catch { return $null }
+    $m = [regex]::Match($text, 'ArduPlane V(\d+\.\d+\.\d+(?:-[A-Za-z]+\d*)?)')
+    if ($m.Success) { return $m.Groups[1].Value }
+    return $null
 }
-function Sitl-Home([string]$xml) {
-    # Same "-O lat,lng,alt,heading" form Mission Planner builds from its map; its last map position is reused when saved.
-    $invariant = [Globalization.CultureInfo]::InvariantCulture
-    $lat = -35.363261; $lng = 149.165230; $alt = 584
-    $savedLat = Planner-Setting $xml 'maplast_lat'; $savedLng = Planner-Setting $xml 'maplast_lng'
-    $a = 0.0; $b = 0.0
-    if ($savedLat -and $savedLng -and [double]::TryParse($savedLat, [Globalization.NumberStyles]::Float, $invariant, [ref]$a) -and [double]::TryParse($savedLng, [Globalization.NumberStyles]::Float, $invariant, [ref]$b) -and [Math]::Abs($a) -le 90 -and [Math]::Abs($b) -le 180 -and ($a -ne 0 -or $b -ne 0)) {
-        if ([Math]::Abs($a - $lat) -gt 0.01 -or [Math]::Abs($b - $lng) -gt 0.01) { $alt = 0 }
-        $lat = $a; $lng = $b
+function Sitl-Dev([string]$version) { return [bool]($version -and $version -match '-dev') }
+function Under-OneDrive([string]$path) {
+    if (-not $path) { return $false }
+    $p = $path.TrimEnd('\') + '\'
+    foreach ($name in 'OneDrive', 'OneDriveConsumer', 'OneDriveCommercial') {
+        $base = [Environment]::GetEnvironmentVariable($name)
+        if ($base -and $p.StartsWith($base.TrimEnd('\') + '\', [StringComparison]::OrdinalIgnoreCase)) { return $true }
     }
-    return [string]::Format($invariant, '{0:0.0######},{1:0.0######},{2},0', $lat, $lng, $alt)
+    return $false
 }
-function Start-FlightAxisSitl($request) {
-    $mp = Mp-Root $request
-    $sitlDir = [IO.Path]::Combine($mp, 'sitl')
-    $exe = [IO.Path]::Combine($sitlDir, 'ArduPlane.exe')
-    if (-not [IO.File]::Exists($exe)) { throw ('No ArduPlane SITL in ' + $sitlDir + '. Run Simulation > Plane once in Mission Planner to download it.') }
-    $running = @(Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -match $SitlNamePattern })
-    if ($running.Count) { throw ('A SITL is already running: ' + (@($running | ForEach-Object { $_.ProcessName + ' (PID ' + $_.Id + ')' }) -join ', ') + '. Stop it before starting another one.') }
-    $rf = @(Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -match '^RealFlight' })
-    $allowWithout = $request.PSObject.Properties['AllowWithoutRealFlight'] -and [bool]$request.AllowWithoutRealFlight
-    if (-not $rf.Count -and -not $allowWithout) { throw 'Start RealFlight and select the aircraft first: the flightaxis SITL drives the aircraft RealFlight is showing.' }
-    $store = [IO.Path]::Combine($sitlDir, $SitlModelFolder)
-    [void][IO.Directory]::CreateDirectory($store)
-    No-Links $store
-    $config = [IO.Path]::Combine($mp, 'config.xml')
-    $xml = if ([IO.File]::Exists($config)) { [IO.File]::ReadAllText($config) } else { '' }
-    # Mission Planner's own command line for flightaxis (GCSViews/SITL.cs) plus one extra MAVLink output on UDP 14550,
-    # which Mission Planner's auto-connect picks up. Never --wipe: the stored parameters are the point of this button.
-    $arguments = '-Mflightaxis -O' + (Sitl-Home $xml) + ' -s1 --serial0 tcp:0 --serial1 udpclient:127.0.0.1:14550'
-    $window = if ($request.PSObject.Properties['HideWindow'] -and [bool]$request.HideWindow) { 'Hidden' } else { 'Minimized' }
-    # Start-Process goes through ShellExecute: the SITL gets its own console and does not inherit this script's output pipe.
-    $process = Start-Process -FilePath $exe -ArgumentList $arguments -WorkingDirectory $store -WindowStyle $window -PassThru
-    Start-Sleep -Milliseconds 1500
-    if ($process.HasExited) { throw ('SITL exited immediately (exit code ' + $process.ExitCode + '). Command: ArduPlane.exe ' + $arguments) }
-    $notes = [Collections.Generic.List[string]]::new(); $warnings = [Collections.Generic.List[string]]::new()
-    $notes.Add('SITL started (PID ' + $process.Id + '): ArduPlane.exe ' + $arguments + '  in ' + $store)
-    $planner = @(Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.ProcessName -match '^MissionPlanner' })
-    $plannerStarted = $false
-    $startPlanner = -not ($request.PSObject.Properties['StartPlanner'] -and -not [bool]$request.StartPlanner)
-    if (-not $planner.Count -and $startPlanner) {
-        $plannerExe = Planner-Exe
-        if ($plannerExe) { [void](Start-Process -FilePath $plannerExe -WorkingDirectory ([IO.Path]::GetDirectoryName($plannerExe))); $plannerStarted = $true; $notes.Add('Mission Planner started: ' + $plannerExe) }
-        else { $warnings.Add('Mission Planner was not found; start it yourself.') }
-    }
-    $auto = Planner-AutoConnect $xml
-    if ($auto -eq $false) { $warnings.Add('Mission Planner auto-connect on UDP 14550 is turned off: connect with TCP 127.0.0.1:5760.') }
-    if ($rf.Count) {
-        $listening = @([Net.NetworkInformation.IPGlobalProperties]::GetIPGlobalProperties().GetActiveTcpListeners() | Where-Object { $_.Port -eq 18083 })
-        if (-not $listening.Count) { $warnings.Add('RealFlight is not listening on 18083: check RealFlight Link = Yes in Settings > Physics.') }
-    }
-    return @{ Success = $true; Version = $Version; State = 'SITL_STARTED'; Pid = $process.Id; Arguments = $arguments; Store = $store
-        PlannerStarted = $plannerStarted; AutoConnect = $auto; Notes = @($notes); Warnings = @($warnings) }
+function Documents-Folder($request) {
+    $docs = Request-Text $request 'DocumentsFolder'
+    if ($docs) { return $docs }
+    return [Environment]::GetFolderPath('MyDocuments')
 }
-
 # ---------------------------------------------------------------- actions (reversible)
 function Stop-SitlProcesses($request) {
     # Only simulator processes started from Mission Planner's sitl folder; Mission Planner and RealFlight are left to the user.

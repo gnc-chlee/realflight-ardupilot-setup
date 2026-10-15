@@ -10,7 +10,7 @@ $ProgressPreference = 'SilentlyContinue'
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $Catalog = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'models.json') -Raw -Encoding UTF8 | ConvertFrom-Json
 $Utf8 = [Text.UTF8Encoding]::new($false)
-$Version = '0.2.2'
+$Version = '0.2.3'
 # Absolute root baked into all four PR 158 archives by the vendor's RealFlight 8 PC.
 $VendorPrefix = 'C:\Users\Administrator\Documents\RealFlight 8\'
 # RF 8/9 store the FlightAxis switch as FlightAxisLinkEnabled; Evolution as RealFlightLinkEnabled. Whichever exists is set.
@@ -111,6 +111,8 @@ function Detect {
 }
 function Root-Info([string]$root, $exe) {
     $root = Full $root
+    # RealFlight and the SITL keep writing into Documents; OneDrive syncing those files can lock or damage them.
+    if (Under-OneDrive $root) { throw ('RealFlight user folder is inside OneDrive: ' + $root + '. This PC cannot be set up while Documents is on OneDrive.') }
     No-Links $root
     if (-not (Test-Path -LiteralPath $root -PathType Container)) { throw 'Run RealFlight once, exit it, then select its Documents user-data folder.' }
     $ini = @('RealFlight64.ini','RealFlight.ini' | Where-Object { Test-Path -LiteralPath (Join-Path $root $_) -PathType Leaf })
@@ -601,7 +603,6 @@ function Setup($request) {
     }
     # Connection troubleshooting (Troubleshoot.ps1): Diagnose only reads; every reset moves files aside and has a restore.
     if ($request.Action -ceq 'Status') { return Quick-Status $request }
-    if ($request.Action -ceq 'StartSitl') { return Start-FlightAxisSitl $request }
     if ($request.Action -ceq 'Diagnose') { return Diagnose $request }
     if ($request.Action -ceq 'StopSitl') { return Stop-SitlProcesses $request }
     if ($request.Action -ceq 'ResetSitl') { return Reset-SitlStore $request }

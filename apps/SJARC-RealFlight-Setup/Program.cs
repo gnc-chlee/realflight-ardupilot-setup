@@ -15,7 +15,7 @@ using System.Windows.Forms;
 
 [assembly: AssemblyTitle("SJ-ARC RealFlight Setup")]
 [assembly: AssemblyDescription("Unofficial educational MFE VTOL setup assistant. No automatic ARM or flight.")]
-[assembly: AssemblyVersion("0.2.2.0")]
+[assembly: AssemblyVersion("0.2.3.0")]
 
 namespace SJARC {
     static class Program {
@@ -162,7 +162,7 @@ namespace SJARC {
         ComboBox installs, roots; CheckedListBox models; CheckBox brake, paths;
         TextBox log, tlog; Label state, tip, selectionInfo, headerTarget, badge, importTitle, importHow;
         ProgressBar progress; ListView prepareList, importList, finalizeList; Panel pageHost, logPanel; Button nextFromFinalize; TableLayoutPanel content;
-        StatusItem stLink, stPause, stController, stSitl;
+        StatusItem stLink, stPause, stController, stSitl, stMp;
         readonly List<StepButton> steps = new List<StepButton>(); readonly List<Control> pages = new List<Control>();
         readonly List<string> detectedRoots = new List<string>(); readonly List<Button> buttons = new List<Button>();
         readonly Timer statusTimer = new Timer { Interval=900 };
@@ -170,7 +170,7 @@ namespace SJARC {
         public SetupForm(string workRoot) {
             work=workRoot; Directory.CreateDirectory(work);
             payload=ExtractPayload();
-            Text="SJ-ARC | RealFlight VTOL 설치 도우미 v0.2.2";
+            Text="SJ-ARC | RealFlight VTOL 설치 도우미 v0.2.3";
             Icon appIcon=null;
             try {appIcon=System.Drawing.Icon.ExtractAssociatedIcon(Application.ExecutablePath);Icon=appIcon;} catch(Exception) {}
             Font=new Font("맑은 고딕",10F); AutoScaleMode=AutoScaleMode.Dpi;
@@ -251,8 +251,8 @@ namespace SJARC {
         Control BuildStatusStrip() {
             var strip=new FlowLayoutPanel {Dock=DockStyle.Fill,WrapContents=false,Padding=new Padding(P(16),P(9),P(8),0),Margin=new Padding(1,0,1,1),BackColor=Theme.Card,Font=new Font(Font.FontFamily,9F)};
             strip.Paint+=(s,e)=>{using(var pen=new Pen(Theme.Line))e.Graphics.DrawLine(pen,0,0,strip.Width,0);};
-            stLink=new StatusItem("RealFlight Link 확인 중"); stPause=new StatusItem("일시정지 확인 중"); stController=new StatusItem("조종기 확인 중"); stSitl=new StatusItem("SITL 확인 중");
-            foreach(var item in new[]{stLink,stPause,stController,stSitl}) strip.Controls.Add(item);
+            stLink=new StatusItem("RealFlight Link 확인 중"); stPause=new StatusItem("일시정지 확인 중"); stController=new StatusItem("조종기 확인 중"); stSitl=new StatusItem("SITL 확인 중"); stMp=new StatusItem("Mission Planner 확인 중");
+            foreach(var item in new[]{stLink,stPause,stController,stSitl,stMp}) strip.Controls.Add(item);
             var refresh=new LinkLabel {Text="새로고침",AutoSize=true,LinkColor=Theme.Accent,Margin=new Padding(P(4),P(4),0,0)};
             refresh.LinkClicked+=async(s,e)=>await RefreshStatus();
             strip.Controls.Add(refresh);
@@ -344,8 +344,8 @@ namespace SJARC {
         void BuildSitlPage() {
             var p=NewPage("Mission Planner에서 SITL을 연결하세요",null,false);
             Add(p,new ConnectionDiagram {Height=P(158),Dock=DockStyle.Fill,Margin=new Padding(0,P(2),0,P(4))});
-            var start=Row(); start.Controls.Add(Button("SITL 시작 (flightaxis)",async(s,e)=>await StartSitl(),true)); start.Controls.Add(Button("SITL 종료",async(s,e)=>await StopSitl())); Add(p,start);
-            var callout=new Label {Text="[SITL 시작]은 항상 flightaxis로, 같은 파라미터 저장소로, Wipe 없이 켜고 Mission Planner가 스스로 연결합니다(UDP 14550). RealFlight를 먼저 켜고 기체를 고른 뒤 누르세요.\nMP의 Simulation 탭에서 직접 켤 때는 Model = flightaxis를 꼭 고르세요. 안 고르면 RF 기체는 넘어지는데 MP 화면은 그대로입니다(배터리 12.60V 고정).",AutoSize=true,MaximumSize=new Size(P(800),0),BackColor=Theme.WarnSoft,ForeColor=Color.FromArgb(99,56,6),Padding=new Padding(P(12)),Margin=new Padding(0,P(4),0,P(6))};
+            // One way to start the SITL (Eumseong 2026-10-15): a second launcher next to Mission Planner's own confused instructors.
+            var callout=new Label {Text="RealFlight를 켜고 기체를 고른 뒤(넘어진 채 가만히 있을 때), Mission Planner Simulation 탭에서\nModel = flightaxis → Skip Download 체크 → Plane 아이콘을 누르세요. MP가 스스로 연결합니다. 오른쪽 위 CONNECT는 누르지 않습니다.\n• Mission Planner는 1.3.82를 쓰세요. 1.3.83은 연결 직후 꺼지는 버그가 있습니다(아래 상태 줄에 버전 표시).\n• SITL 검은 창 안은 클릭하지 마세요. 제목에 '선택'이 붙으면 SITL이 멈춥니다(Esc로 풀림).\n• 연결 중 RealFlight가 멈추면 Settings → Physics → Automatic Reset Delay를 10초로 늘리세요.",AutoSize=true,MaximumSize=new Size(P(800),0),BackColor=Theme.WarnSoft,ForeColor=Color.FromArgb(99,56,6),Padding=new Padding(P(12)),Margin=new Padding(0,P(4),0,P(6))};
             Add(p,callout);
             var row=Row(); row.Controls.Add(Button("파라미터 폴더 열기",(s,e)=>OpenFolder(".SJARC\\Parameters"))); row.Controls.Add(Button("로컬 연결 포트 확인",async(s,e)=>await Probe()));
             row.Controls.Add(Button("공식 연결 문서",(s,e)=>Process.Start(new ProcessStartInfo("https://ardupilot.org/dev/docs/sitl-with-realflight.html") {UseShellExecute=true}))); Add(p,row);
@@ -382,8 +382,16 @@ namespace SJARC {
                 var install=installs.SelectedItem as Install;
                 var r=await Execute(new Dictionary<string,object>{{"Action","Status"},{"Executable",install==null?"":install.Path},{"Root",RootText()}},false);
                 bool running=Flag(r,"RfRunning")==true||Flag(r,"MpRunning")==true||Flag(r,"SitlRunning")==true;
-                badge.Text=running?"RF·MP 실행 중 · 파일 작업은 종료 후":"RF·MP 꺼짐 · 파일 작업 가능";
-                badge.BackColor=running?Theme.WarnSoft:Theme.GoodSoft; badge.ForeColor=running?Theme.Warn:Theme.Good;
+                int rfCount=r.ContainsKey("RfCount")&&r["RfCount"]!=null?Convert.ToInt32(r["RfCount"]):0;
+                if(Flag(r,"DocsOnOneDrive")==true) {
+                    badge.Text="문서 폴더가 OneDrive · 이 PC는 설치 불가"; badge.BackColor=Theme.WarnSoft; badge.ForeColor=Theme.Bad;
+                } else if(rfCount>1) {
+                    // Windows left behind by an RF that hung; a new RF next to them misbehaves (Eumseong 2026-10-15).
+                    badge.Text="RealFlight "+rfCount+"개 실행 중 · 모두 끄거나 재부팅"; badge.BackColor=Theme.WarnSoft; badge.ForeColor=Theme.Bad;
+                } else {
+                    badge.Text=running?"RF·MP 실행 중 · 파일 작업은 종료 후":"RF·MP 꺼짐 · 파일 작업 가능";
+                    badge.BackColor=running?Theme.WarnSoft:Theme.GoodSoft; badge.ForeColor=running?Theme.Warn:Theme.Good;
+                }
                 var link=Flag(r,"LinkEnabled");
                 stLink.Set(link==true?Theme.Good:(link==false?Theme.Bad:Theme.Faint),link==true?"RealFlight Link 켜짐":(link==false?"RealFlight Link 꺼짐":"RealFlight Link 확인 불가"));
                 var pause=Flag(r,"PauseOn");
@@ -391,10 +399,16 @@ namespace SJARC {
                 var controller=Flag(r,"ControllerSelected");
                 stController.Set(controller==true?Theme.Good:(controller==false?Theme.Warn:Theme.Faint),controller==true?"조종기 선택됨":(controller==false?"조종기 선택 기록 없음":"조종기 확인 불가"));
                 var sitl=Flag(r,"SitlRunning"); var flightAxis=Flag(r,"SitlFlightAxis");
-                if(sitl!=true) stSitl.Set(Theme.Faint,"SITL 꺼짐 · 켜면 flightaxis 확인");
-                else if(flightAxis==true) stSitl.Set(Theme.Good,"SITL flightaxis로 실행 중");
+                string sitlVersion=Str(r,"SitlVersion");
+                if(Flag(r,"SitlDev")==true) stSitl.Set(Theme.Warn,"SITL 개발판 "+sitlVersion+" → Stable로 다시 받기");
+                else if(sitl!=true) stSitl.Set(Theme.Faint,"SITL 꺼짐"+(sitlVersion!=""?" ("+sitlVersion+")":"")+" · 켜면 flightaxis 확인");
+                else if(flightAxis==true) stSitl.Set(Theme.Good,"SITL flightaxis로 실행 중"+(sitlVersion!=""?" ("+sitlVersion+")":""));
                 else if(flightAxis==false) stSitl.Set(Theme.Bad,"SITL이 flightaxis 아님 → Model 다시 선택");
                 else stSitl.Set(Theme.Faint,"SITL 실행 중 · 모델 확인 불가");
+                string mpVersion=Str(r,"PlannerVersion");
+                if(Flag(r,"PlannerBroken")==true) stMp.Set(Theme.Bad,"MP "+mpVersion+" → 1.3.82로 바꾸기");
+                else if(mpVersion!="") stMp.Set(Theme.Good,"MP "+mpVersion);
+                else stMp.Set(Theme.Faint,"Mission Planner 찾지 못함");
             } catch(Exception) {
                 badge.Text="상태 확인 실패"; badge.BackColor=Theme.Hover; badge.ForeColor=Theme.Muted;
             } finally {statusBusy=false;}
@@ -576,23 +590,6 @@ namespace SJARC {
             SetBusy(true,"로컬 TCP 수신 대기 목록 확인 중…");
             try {var r=await Execute(new Dictionary<string,object>{{"Action","Probe"}});var b=new StringBuilder();foreach(var p in Objects(r,"Ports"))b.AppendLine(Str(p,"Port")+" : "+(Convert.ToBoolean(p["Open"])?"수신 대기 있음":"수신 대기 없음"));b.AppendLine("18083: RF FlightAxis / 5760: 기본 SITL TCP\n수신 대기 목록만 검사하며 접속이나 패킷 전송은 하지 않습니다.\n해당 프로세스의 정체·MAVLink·기체·실제 연결 가능 여부는 별도 확인하세요.");SetBusy(false,"포트 목록 검사 완료 · 접속/명령 전송 없음.");MessageBox.Show(this,b.ToString(),"로컬 포트 확인");}catch(Exception ex){Fail(ex);}
         }
-        async Task StartSitl() {
-            SetBusy(true,"SITL 시작 중… (flightaxis · 같은 저장소 · Wipe 없음)");
-            try {
-                var r=await Execute(new Dictionary<string,object>{{"Action","StartSitl"}});
-                foreach(string s in Strings(r,"Notes"))Append(s);
-                var warnings=new List<string>();foreach(string s in Strings(r,"Warnings")){Append("확인 필요: "+s);warnings.Add("• "+Plain(s));}
-                bool? auto=Flag(r,"AutoConnect");
-                SetBusy(false,"SITL 실행 중 · Mission Planner 연결을 확인하세요.");
-                string text="SITL을 flightaxis로 켰습니다. 작업 표시줄에 SITL 검은 창이 최소화되어 있습니다.\n\n"
-                    +(auto==false?"Mission Planner의 자동 연결이 꺼져 있습니다. MP 오른쪽 위 연결 단추에서 TCP → 127.0.0.1 → 5760으로 연결하세요.":"Mission Planner가 몇 초 안에 스스로 연결합니다. 오른쪽 위 단추가 DISCONNECT로 바뀌면 연결된 것이니 다시 누르지 마세요.")
-                    +"\n\nRealFlight에서 스페이스바(리셋)를 누르면 'FlightAxis Controller Device has been activated'가 나옵니다.";
-                if(warnings.Count>0)text+="\n\n확인 필요\n"+String.Join("\n",warnings);
-                MessageBox.Show(this,text,"SITL 시작",MessageBoxButtons.OK,MessageBoxIcon.Information);
-            }catch(Exception ex){Fail(ex);}
-            await Task.Delay(1500);
-            await RefreshStatus();
-        }
         void TLog(string s) {tlog.AppendText(DateTime.Now.ToString("HH:mm:ss")+"  "+s+Environment.NewLine);Append(s);}
         async Task Diagnose() {
             SetBusy(true,"연결 상태 진단 중… (읽기 전용 · 10초 정도)");
@@ -626,7 +623,7 @@ namespace SJARC {
             string note;
             if(action=="ResetSitl")note="Mission Planner SITL(flightaxis) 저장 폴더의 이름을 백업 이름으로 바꿉니다. 지우지 않습니다.\n\n대상 폴더: "+sitl+"\n(SITL 파라미터 eeprom.bin과 SITL 로그)\n\n다음 SITL은 기본 파라미터로 새로 시작합니다.\n파라미터를 넣기 전에 RF 연결이 되는지 먼저 확인하고, 그다음 기종 param 파일을 다시 불러오세요.\n'SITL 설정 되돌리기'를 누르면 원래대로 돌아갑니다.";
             else if(action=="RestoreSitl")note="도우미가 가장 최근에 백업한 SITL 저장 폴더를 원래 이름(flightaxis)으로 되돌립니다.\n초기화 뒤에 새로 생긴 폴더는 지우지 않고 다른 이름으로 보관합니다.";
-            else if(action=="ResetRfIni")note="선택한 RealFlight의 설정 파일(INI)을 백업 폴더로 옮깁니다. 최후 수단입니다.\n\n"+TargetDescription()+"\n\n• 다음에 RF를 실행하면 설정이 처음 상태로 새로 만들어집니다.\n• 다시 해야 할 것: 조종기 선택·보정, Settings → Physics(RealFlight Link = Yes, 배경·메뉴 일시정지 = No, Automatic Reset Delay = 2.0)\n• 기체·모델·조종기 프로필 파일은 바뀌지 않습니다.\n• 'RF 설정 되돌리기'를 누르면 원래 설정 파일이 돌아옵니다.";
+            else if(action=="ResetRfIni")note="선택한 RealFlight의 설정 파일(INI)을 백업 폴더로 옮깁니다. 최후 수단입니다.\n\n"+TargetDescription()+"\n\n• 다음에 RF를 실행하면 설정이 처음 상태로 새로 만들어집니다.\n• 다시 해야 할 것: 조종기 선택·보정, Settings → Physics(RealFlight Link = Yes, 배경·메뉴 일시정지 = No, Automatic Reset Delay = 2.0, 연결 중 RF가 멈췄던 PC는 10)\n• 기체·모델·조종기 프로필 파일은 바뀌지 않습니다.\n• 'RF 설정 되돌리기'를 누르면 원래 설정 파일이 돌아옵니다.";
             else note="도우미가 가장 최근에 옮겨 둔 RealFlight 설정 파일(INI)을 되돌립니다.\n\n"+TargetDescription()+"\n\n초기화 뒤 RF가 새로 만든 INI는 지우지 않고, 사본을 백업 폴더에 남깁니다.";
             bool reset=action.StartsWith("Reset");
             if(MessageBox.Show(this,note+"\n\nRealFlight · Mission Planner · SITL을 모두 종료한 뒤 확인을 누르세요.",reset?"초기화 (지우지 않고 옮김)":"되돌리기",MessageBoxButtons.OKCancel,reset?MessageBoxIcon.Warning:MessageBoxIcon.Question)!=DialogResult.OK)return;
@@ -641,7 +638,7 @@ namespace SJARC {
                 if(Str(r,"Restored")!="")TLog("되돌림: "+Str(r,"Restored"));
                 if(Str(r,"Kept")!="")TLog("보관(지우지 않음): "+Str(r,"Kept"));
                 if(result=="SITL_RESET")TLog("다음: RF 실행·기체 선택 → MP Simulation 연결 → 파라미터 넣기 전 연결 확인 → 기종 param Load·Write → SITL 재시작 → 다시 확인");
-                if(result=="RF_INI_RESET")TLog("다음: RF 실행 → 조종기 선택·보정 → Settings → Physics(RealFlight Link = Yes, 일시정지 2개 = No, Reset Delay 2.0) → RF 재시작 → 연결 확인");
+                if(result=="RF_INI_RESET")TLog("다음: RF 실행 → 조종기 선택·보정 → Settings → Physics(RealFlight Link = Yes, 일시정지 2개 = No, Reset Delay 2.0 · 연결 중 멈췄다면 10) → RF 재시작 → 연결 확인");
                 SetBusy(false,"완료 · 옮긴 파일은 백업 위치에 그대로 있습니다.");
             }catch(Exception ex){Fail(ex);}
             await RefreshStatus();
@@ -663,21 +660,11 @@ namespace SJARC {
             {"Select the exact USER DATA folder", "RealFlight.ini가 있는 '문서' 쪽 사용자 폴더를 선택하세요. 프로그램 설치 폴더가 아닙니다."},
             {"Executable edition and user-data folder do not match", "선택한 실행 파일과 문서 폴더의 RealFlight 버전이 다릅니다. 같은 버전끼리 선택하세요."},
             {"RealFlight executable not found", "RealFlight 실행 파일을 찾지 못했습니다. '다시 검색' 또는 '실행 파일 직접 선택'을 누르세요."},
-            {"Linked/cloud-placeholder path refused", "OneDrive 같은 동기화 폴더나 바로가기 경로는 쓸 수 없습니다. PC에 실제로 있는 폴더를 선택하세요."},
+            {"RealFlight user folder is inside OneDrive", "문서 폴더가 OneDrive에 있어 이 PC에는 설치할 수 없습니다. RealFlight와 Mission Planner가 문서 폴더에 계속 쓰는 파일을 OneDrive가 동기화하면서 깨뜨릴 수 있습니다."},
+            {"Linked/cloud-placeholder path refused", "OneDrive 같은 동기화 폴더나 바로가기 경로는 쓸 수 없습니다. 이 PC에는 설치할 수 없습니다."},
             {"No SITL backup made by this helper", "되돌릴 SITL 백업이 없습니다. 도우미로 SITL 저장 설정을 초기화한 적이 없는 PC입니다."},
-            {"No RealFlight INI reset made by this helper", "되돌릴 RealFlight 설정 백업이 없습니다. 도우미로 RF 설정을 초기화한 적이 없는 대상입니다."},
-            {"No ArduPlane SITL in", "Mission Planner에 SITL 프로그램이 아직 없습니다. MP에서 Simulation → Plane을 한 번 눌러 받아 두세요(인터넷 필요)."},
-            {"A SITL is already running", "SITL이 이미 실행 중입니다. 한 RealFlight에는 SITL 하나만 연결하세요. 필요하면 'SITL 종료'를 누른 뒤 다시 시작하세요."},
-            {"Start RealFlight and select the aircraft first", "RealFlight를 먼저 켜고 기체를 고른 뒤 누르세요. flightaxis SITL은 RealFlight 화면의 기체를 조종합니다."},
-            {"SITL exited immediately", "SITL이 켜지자마자 종료되었습니다. 'SITL 종료' 후 다시 시도하고, 계속되면 '연결 문제 해결'의 ① 진단을 보내 주세요."},
-            {"Mission Planner auto-connect on UDP 14550 is turned off", "Mission Planner 자동 연결(UDP 14550)이 꺼져 있습니다. MP 연결 단추에서 TCP → 127.0.0.1 → 5760으로 연결하세요."},
-            {"RealFlight is not listening on 18083", "RealFlight가 FlightAxis 포트(18083)에서 대기하지 않습니다. Settings → Physics에서 RealFlight Link = Yes인지 확인하세요."},
-            {"Mission Planner was not found", "Mission Planner를 찾지 못했습니다. 직접 실행하세요."}
+            {"No RealFlight INI reset made by this helper", "되돌릴 RealFlight 설정 백업이 없습니다. 도우미로 RF 설정을 초기화한 적이 없는 대상입니다."}
         };
-        static string Plain(string message) {
-            for(int i=0;i<Friendly.GetLength(0);i++) if(message.StartsWith(Friendly[i,0],StringComparison.Ordinal)) return Friendly[i,1];
-            return message;
-        }
         static string Explain(string message) {
             for(int i=0;i<Friendly.GetLength(0);i++) if(message.StartsWith(Friendly[i,0],StringComparison.Ordinal)) return Friendly[i,1]+"\n\n(원문: "+message+")";
             return message;

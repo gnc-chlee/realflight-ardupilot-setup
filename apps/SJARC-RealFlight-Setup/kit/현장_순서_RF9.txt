@@ -1,19 +1,23 @@
-SJ-ARC 설치 도우미 v0.2.2 — RealFlight 9 현장 적용 순서
+SJ-ARC 설치 도우미 v0.2.3 — RealFlight 9 현장 적용 순서
 (이 폴더 통째로 대상 PC 바탕화면에 복사해서 실행. 인터넷 없어도 됨)
 
 v0.1.4 핵심: RF 8/9는 모델 경로를 건드리지 않고 CH8~12 신호만 보정합니다.
 v0.1.2/v0.1.3로 경로 보정해서 FLY 시 크래시 나던 PC도 3번만 다시 누르면 복구됩니다(재Import 불필요).
 v0.1.5 추가: SITL 연결 중 RF가 '응답 없음'이 될 때 쓰는 '연결 문제 해결'(맨 아래 순서 참고).
 v0.2.0 화면: 왼쪽 단계 목록(1 대상 확인 → 2 모델 준비 → 3 RF에서 Import → 4 검사·패치 → 5 SITL 연결)을 위에서부터 따라가면 됨.
-            아래 상태 줄에 RealFlight Link · 일시정지 · 조종기 · SITL flightaxis 여부가 늘 표시됨.
+            아래 상태 줄에 RealFlight Link · 일시정지 · 조종기 · SITL · Mission Planner 버전이 늘 표시됨.
+v0.2.3 (2026-10 음성 현장 결과): Mission Planner는 1.3.82 사용(1.3.83은 연결 직후 꺼짐).
+            SITL은 MP Simulation 탭 하나로 켬(도우미의 SITL 시작 버튼 없앰). 연결 중 RF가 멈추면 Automatic Reset Delay 10초.
 
 ■ 시작 전
 1. RealFlight 9를 한 번 실행했다가 완전히 종료 (문서 폴더 생성용)
 2. RealFlight(9와 Evolution 모두), Mission Planner, SITL 종료
 3. 실제 비행 컨트롤러(USB/텔레메트리) 분리
+   Mission Planner 버전 확인: 1.3.83이면 제거하고 1.3.82 설치
+   (https://firmware.ardupilot.org/Tools/MissionPlanner/MissionPlanner-1.3.82.msi, 업데이트 물으면 '아니오')
 
 ■ 도우미 실행
-4. SJARC-RealFlight-Setup.exe 실행 (보안 경고: 추가 정보 → 실행). 창 제목이 v0.2.2인지 확인
+4. SJARC-RealFlight-Setup.exe 실행 (보안 경고: 추가 정보 → 실행). 창 제목이 v0.2.3인지 확인
 5. 왼쪽 "1. 대상 확인"의 [RealFlight 실행 파일] 목록에서 "RealFlight 9 / 9.5 / 9.5S" 선택
    ※ 목록에 없으면 [실행 파일 직접 선택] → RF9 설치 폴더의 RealFlight.exe 또는 RealFlight64.exe
    ※ RF 9에서는 '모델·텍스처 경로 보정' 체크가 회색(사용 안 함)으로 바뀌는 것이 정상
@@ -44,16 +48,19 @@ v0.2.0 화면: 왼쪽 단계 목록(1 대상 확인 → 2 모델 준비 → 3 RF
     RealFlight Link = Yes / Pause Sim When in Background = No /
     Pause Sim When in Menu = No / Automatic Reset Delay = 2.0
     (도우미가 INI에 적용함 — 화면에서 확인만. 바꿨다면 RF9 재시작)
+    ※ SITL 연결 중 RF가 '응답 없음'이 되는 PC는 Automatic Reset Delay = 10 (느리거나 메모리가 빠듯한 PC)
 13. 사용할 조종기 설정에서 Software Radio Dual Rates and Expo = Off
 14. 기체 선택 → STRIVERminiVTOL / Pioneer / fighterVTOL / HERO2180 (원래 이름으로)
     ※ Pioneer_KU처럼 다른 이름으로 저장한 사본은 패치되지 않고, 발사 방식(손 던지기)이 다를 수 있음
     FLY 눌러서 크래시 없이 뜨는지 확인
 
 ■ Mission Planner (SITL)
-15. RF에서 기체 선택 → 도우미 "5. SITL 연결"의 [SITL 시작 (flightaxis)] → Mission Planner가 스스로 연결됨
-    (MP 오른쪽 위 단추가 DISCONNECT로 바뀌면 연결된 것. 다시 누르지 말 것)
-    ※ MP의 Simulation 탭으로 직접 켤 때: Model = flightaxis → Plane 아이콘 → Stable (Wipe 체크 금지)
+15. RF에서 기체 선택 (넘어진 채 가만히 있을 때) → Mission Planner → Simulation 탭
+    Model = flightaxis → Skip Download 체크 → Plane 아이콘 → MP가 SITL을 켜고 스스로 연결함
+    (오른쪽 위 CONNECT는 누르지 말 것. Wipe 체크 금지)
+    ※ Skip Download를 안 하면 SITL을 다시 받음. 버전을 물으면 Stable(정식판). 개발판은 연결 직후 PANIC으로 멈춘 일 있음
     ※ flightaxis를 안 고르면 RF 기체는 넘어지는데 MP 화면은 그대로(배터리 12.60V 고정), 비행모드도 MANUAL·FBWA만 보임
+    ※ SITL 검은 창 안은 클릭하지 말 것. 제목에 "선택"이 붙으면 SITL이 멈춤 → Esc
     RF9에서 스페이스바(리셋) → "FlightAxis Controller Device has been activated" 확인
 16. 파라미터는 직접 불러옴: CONFIG → Full Parameter List → Load from file → Write Params
     ※ 처음(또는 SITL 초기화 뒤)에는 같은 파일을 두 번 불러옴:
@@ -80,8 +87,9 @@ v0.2.0 화면: 왼쪽 단계 목록(1 대상 확인 → 2 모델 준비 → 3 RF
 ■ SITL 연결 중 RF가 '응답 없음'이 되면 (도우미 왼쪽 아래 '연결 문제 해결')
 A. RF 창을 닫지 말고 먼저 ① 진단 보고서 만들기 → 메모장이 열림. SITL 검은 창을 휴대폰으로 촬영
    (검은 창에 "Starting controller"가 계속 반복되는지 확인)
-B. RF·MP 닫기(응답 없음이면 작업 관리자에서 끝내기) → ② 남은 SITL 창 종료
-   켜는 순서: RF 실행 → 기체 선택 → 도우미 [SITL 시작] (또는 MP Simulation) / 끄는 순서: SITL·MP 먼저, RF 마지막
+B. RF·MP 닫기(응답 없음이면 작업 관리자에서 끝내기. 세부 정보에 남은 RealFlight.exe도 모두) → ② 남은 SITL 창 종료
+   RF Settings → Physics → Automatic Reset Delay = 10 (음성 현장 2·3번 PC는 이것으로 해결)
+   켜는 순서: RF 실행 → 기체 선택 → MP Simulation(15번) / 끄는 순서: SITL·MP 먼저, RF 마지막
    진단 보고서에 'Reset 기능에 지정된 조종기 입력'이 나오면 그 스위치를 끈 상태로 둠
    RF 기체는 넘어지는데 MP 화면이 그대로(배터리 12.60V 고정)면 SITL이 RF에 안 붙은 것 → MP Simulation의 Model = flightaxis 확인
 C. 계속 멈추면 모두 닫고 ③ SITL 저장 설정 초기화 → 파라미터 넣기 전에 연결만 먼저 확인
