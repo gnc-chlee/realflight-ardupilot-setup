@@ -61,6 +61,10 @@ v0.2.3 (2026-10 음성 현장 결과): Mission Planner는 1.3.82 사용(1.3.83�
     ※ Skip Download를 안 하면 SITL을 다시 받음. 버전을 물으면 Stable(정식판). 개발판은 연결 직후 PANIC으로 멈춘 일 있음
     ※ flightaxis를 안 고르면 RF 기체는 넘어지는데 MP 화면은 그대로(배터리 12.60V 고정), 비행모드도 MANUAL·FBWA만 보임
     ※ SITL 검은 창 안은 클릭하지 말 것. 제목에 "선택"이 붙으면 SITL이 멈춤 → Esc
+    ※ "cygiconv-2.dll이 없어 코드 실행을 진행할 수 없습니다" 창이 뜨면(MP 1.3.82로 처음 받은 PC):
+       cygiconv-2.dll, cygintl-8.dll 두 파일을 문서\Mission Planner\sitl에 넣음
+       https://firmware.ardupilot.org/Tools/MissionPlanner/sitl/PlaneStable/ 에서 받거나 잘 되는 PC에서 복사
+    ※ 다른 오류는 도우미 왼쪽 '오류별 해결 방법' 탭에서 오류 문구로 검색
     RF9에서 스페이스바(리셋) → "FlightAxis Controller Device has been activated" 확인
 16. 파라미터는 직접 불러옴: CONFIG → Full Parameter List → Load from file → Write Params
     ※ 처음(또는 SITL 초기화 뒤)에는 같은 파일을 두 번 불러옴:

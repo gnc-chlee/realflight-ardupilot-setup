@@ -73,7 +73,7 @@ def payload():
                'SignalCore.ps1': core.encode('utf-8'),
                'models.json': json.dumps(models, indent=2).encode('utf-8'),
                'MotorMap.param': (ROOT / 'patches/MFE-FlightAxis-Signal-Patch-v1.0.0/MFE_PR158_QuadX_Servo_Map_ONLY.param').read_bytes()}
-    for name in ['GUIDE_KO.txt', 'README_KO.md', 'TROUBLESHOOT_KO.txt']:
+    for name in ['GUIDE_KO.txt', 'README_KO.md', 'TROUBLESHOOT_KO.txt', 'ERRORS_KO.txt']:
         if (APP / name).exists():
             entries[name] = (APP / name).read_bytes()
     for name, data in entries.items():

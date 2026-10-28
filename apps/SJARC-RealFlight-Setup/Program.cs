@@ -31,6 +31,11 @@ namespace SJARC {
         public string Key, Title;
         public override string ToString() { return Title; }
     }
+    // One entry of ERRORS_KO.txt: "# title", a "검색어:" line used only for searching, then the text shown.
+    sealed class ErrorItem {
+        public string Title, Body, Search;
+        public override string ToString() { return Title; }
+    }
     static class Theme {
         public static readonly Color Page=Color.FromArgb(243,245,248), Card=Color.White, Line=Color.FromArgb(223,228,234),
             Text=Color.FromArgb(23,32,45), Muted=Color.FromArgb(96,108,122), Faint=Color.FromArgb(160,168,178),
@@ -155,7 +160,7 @@ namespace SJARC {
         }
     }
     sealed class SetupForm : Form {
-        const int StepTarget=0, StepModels=1, StepImport=2, StepFinalize=3, StepSitl=4, StepTrouble=5, StepAbout=6;
+        const int StepTarget=0, StepModels=1, StepImport=2, StepFinalize=3, StepSitl=4, StepTrouble=5, StepErrors=6, StepAbout=7;
         readonly string work, payload;
         readonly JavaScriptSerializer json = new JavaScriptSerializer { MaxJsonLength=8*1024*1024 };
         readonly float scale=1f;
@@ -163,6 +168,7 @@ namespace SJARC {
         TextBox log, tlog; Label state, tip, selectionInfo, headerTarget, badge, importTitle, importHow;
         ProgressBar progress; ListView prepareList, importList, finalizeList; Panel pageHost, logPanel; Button nextFromFinalize; TableLayoutPanel content;
         StatusItem stLink, stPause, stController, stSitl, stMp;
+        TextBox errorSearch; ListBox errorList; RichTextBox errorText; readonly List<ErrorItem> errorItems = new List<ErrorItem>();
         readonly List<StepButton> steps = new List<StepButton>(); readonly List<Control> pages = new List<Control>();
         readonly List<string> detectedRoots = new List<string>(); readonly List<Button> buttons = new List<Button>();
         readonly Timer statusTimer = new Timer { Interval=900 };
@@ -203,7 +209,7 @@ namespace SJARC {
             progress=new ProgressBar {Dock=DockStyle.Fill,Visible=false,Style=ProgressBarStyle.Marquee,Margin=new Padding(4,P(8),4,P(8))};
             statusRow.Controls.Add(state,0,0); statusRow.Controls.Add(progress,1,0); layout.Controls.Add(statusRow,0,1);
             layout.Controls.Add(new Label {Dock=DockStyle.Fill,Text="기획·교육 적용·검증: 이충현  |  세종사이버대학교 드론로봇융합학과 초빙교수\nAI 개발도구 활용 · 개인 제작 교육지원 도구 · 대학 / RealFlight / MFE / ArduPilot의 공식 제품이 아닙니다.",ForeColor=Theme.Muted,Font=new Font(Font.FontFamily,8.5F),TextAlign=ContentAlignment.MiddleLeft},0,2);
-            BuildTargetPage(); BuildModelsPage(); BuildImportPage(); BuildFinalizePage(); BuildSitlPage(); BuildTroublePage(); BuildAboutPage();
+            BuildTargetPage(); BuildModelsPage(); BuildImportPage(); BuildFinalizePage(); BuildSitlPage(); BuildTroublePage(); BuildErrorsPage(); BuildAboutPage();
             ShowStep(StepTarget);
             statusTimer.Tick+=async(s,e)=>{statusTimer.Stop();await RefreshStatus();};
             Shown+=async(s,e)=>{await Scan();await RefreshStatus();};
@@ -229,7 +235,7 @@ namespace SJARC {
         Control BuildRail() {
             var rail=new Panel {Dock=DockStyle.Fill,Padding=new Padding(P(10),P(14),P(10),P(10)),Margin=new Padding(0),BackColor=Theme.Card};
             rail.Paint+=(s,e)=>{using(var pen=new Pen(Theme.Line))e.Graphics.DrawLine(pen,rail.Width-1,0,rail.Width-1,rail.Height);};
-            string[] captions={"1. 대상 확인","2. 모델 준비","3. RF에서 Import","4. 검사·패치","5. SITL 연결","연결 문제 해결","도움말·출처"};
+            string[] captions={"1. 대상 확인","2. 모델 준비","3. RF에서 Import","4. 검사·패치","5. SITL 연결","연결 문제 해결","오류별 해결 방법","도움말·출처"};
             for(int i=0;i<captions.Length;i++) {
                 var b=new StepButton(captions[i],i==StepTarget?StepButton.Current:(i>=StepTrouble?StepButton.Utility:StepButton.Pending)) {Height=P(40)};
                 int index=i; b.Click+=(s,e)=>ShowStep(index); steps.Add(b);
@@ -360,6 +366,44 @@ namespace SJARC {
             AddFill(p,new RichTextBox {ReadOnly=true,BorderStyle=BorderStyle.None,BackColor=Color.White,Font=new Font("맑은 고딕",10F),Text=File.ReadAllText(Path.Combine(payload,"TROUBLESHOOT_KO.txt"),Encoding.UTF8),Margin=new Padding(0,P(6),0,0)},55);
             tlog=new TextBox {Multiline=true,ReadOnly=true,ScrollBars=ScrollBars.Both,WordWrap=false,BackColor=Color.FromArgb(250,251,253),Font=new Font("Consolas",9F),BorderStyle=BorderStyle.FixedSingle,Margin=new Padding(0,P(8),0,0)};
             AddFill(p,tlog,45);
+        }
+        void BuildErrorsPage() {
+            var p=NewPage("오류가 나면 여기서 찾아보세요","오류 창의 문구나 증상 일부를 입력하면 원인과 해결 순서를 보여 줍니다. 예: cygiconv, 응답 없음, PANIC, Q_ASSIST_SPEED, OneDrive",false);
+            Add(p,Caption("검색 (비우면 전체 목록)"));
+            errorSearch=new TextBox {Dock=DockStyle.Fill,Margin=new Padding(0,0,0,P(8))};
+            errorSearch.TextChanged+=(s,e)=>FilterErrors();
+            Add(p,errorSearch);
+            var split=new TableLayoutPanel {ColumnCount=2,RowCount=1,Margin=new Padding(0)};
+            split.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute,P(310))); split.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));
+            errorList=new ListBox {Dock=DockStyle.Fill,IntegralHeight=false,BorderStyle=BorderStyle.FixedSingle,HorizontalScrollbar=true,Margin=new Padding(0,0,P(12),0)};
+            errorText=new RichTextBox {Dock=DockStyle.Fill,ReadOnly=true,BorderStyle=BorderStyle.None,BackColor=Color.White,Font=new Font("맑은 고딕",10.5F),DetectUrls=true,Margin=new Padding(0)};
+            errorText.LinkClicked+=(s,e)=>Process.Start(new ProcessStartInfo(e.LinkText) {UseShellExecute=true});
+            errorList.SelectedIndexChanged+=(s,e)=>{var item=errorList.SelectedItem as ErrorItem;errorText.Text=item==null?"찾는 오류가 없으면 '연결 문제 해결'의 ① 진단 보고서를 만들어 보내 주세요.":item.Title+"\n\n"+item.Body;};
+            split.Controls.Add(errorList,0,0); split.Controls.Add(errorText,1,0);
+            AddFill(p,split,100);
+            LoadErrors(File.ReadAllText(Path.Combine(payload,"ERRORS_KO.txt"),Encoding.UTF8));
+            FilterErrors();
+        }
+        void LoadErrors(string text) {
+            ErrorItem item=null; var body=new StringBuilder();
+            foreach(var raw in text.Replace("\r\n","\n").Split('\n')) {
+                if(raw.StartsWith("# ")) {
+                    if(item!=null){item.Body=body.ToString().Trim();item.Search=(item.Search+" "+item.Title+" "+item.Body).ToLowerInvariant();errorItems.Add(item);}
+                    item=new ErrorItem {Title=raw.Substring(2).Trim(),Search=""}; body.Clear(); continue;
+                }
+                if(item==null) continue;
+                if(raw.StartsWith("검색어:")) {item.Search=raw.Substring(4); continue;}
+                body.AppendLine(raw);
+            }
+            if(item!=null){item.Body=body.ToString().Trim();item.Search=(item.Search+" "+item.Title+" "+item.Body).ToLowerInvariant();errorItems.Add(item);}
+        }
+        void FilterErrors() {
+            // Every word typed must appear somewhere in the entry (title, keywords or text), ignoring case.
+            var words=errorSearch.Text.ToLowerInvariant().Split(new[]{' ','\t'},StringSplitOptions.RemoveEmptyEntries);
+            errorList.BeginUpdate(); errorList.Items.Clear();
+            foreach(var e in errorItems) {bool all=true;foreach(var w in words) if(e.Search.IndexOf(w,StringComparison.Ordinal)<0){all=false;break;} if(all) errorList.Items.Add(e);}
+            errorList.EndUpdate();
+            if(errorList.Items.Count>0) errorList.SelectedIndex=0; else errorText.Text="찾는 오류가 없습니다. 다른 낱말로 찾아보거나, '연결 문제 해결'의 ① 진단 보고서를 만들어 보내 주세요.";
         }
         void BuildAboutPage() {
             var p=NewPage("범위 · 안전 · 출처",null,false);

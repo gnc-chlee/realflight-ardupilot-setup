@@ -478,6 +478,23 @@ class InstallerTests(unittest.TestCase):
         self.assertTrue((Path(fh['Assets']) / 'H' / model('H')['Kex']).exists())
         self.assertFalse((Path(fs['Assets']) / 'S' / s['Kex']).exists())
 
+    def test_error_guide_entries_are_complete_and_cover_field_cases(self):
+        # The "오류별 해결 방법" page reads this file from the payload: "# title", "검색어:", then 상황 / 원인 / 해결.
+        text = (BUILD / 'ERRORS_KO.txt').read_text('utf-8')
+        entries = [e for e in re.split(r'(?m)^# ', text) if e.strip()]
+        self.assertGreaterEqual(len(entries), 20)
+        titles = []
+        for entry in entries:
+            title = entry.splitlines()[0]
+            titles.append(title)
+            for label in ('검색어:', '상황:', '원인:', '해결:'):
+                self.assertIn('\n' + label, '\n' + entry, title)
+            self.assertRegex(entry, r'(?m)^1\. ', title)
+        self.assertEqual(len(titles), len(set(titles)))
+        for needle in ('cygiconv-2.dll', 'MissionPlanner-1.3.82.msi', 'Automatic Reset Delay', 'Location cannot be (0, 0, 0)',
+                       'Q_ASSIST_SPEED', 'OneDrive', 'This battery is in use', "'선택'"):
+            self.assertIn(needle, text)
+
     def test_rf_sitl_parameter_files_are_made_from_the_verified_originals(self):
         r = self.run_request(self.req(keys=('S', 'P', 'H')))
         params = self.rf / '.SJARC/Parameters'

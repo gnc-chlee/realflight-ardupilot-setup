@@ -104,6 +104,13 @@ Status 'RF·MP 실행 중 · 파일 작업은 종료 후' $false @(@($green, 'Re
 (Field 'state').Text = '진단 완료 · 파일과 설정은 바꾸지 않았습니다.'
 [void](Invoke-Form 'ShowStep' @([int]5)); Shot '06-trouble.png'
 
+# Error guide page with a search example.
+Status 'RF·MP 꺼짐 · 파일 작업 가능' $true @(@($green, 'RealFlight Link 켜짐'), @($green, '일시정지 꺼짐'), @($green, '조종기 선택됨'), @($gray, 'SITL 꺼짐 (4.6.3) · 켜면 flightaxis 확인'), @($green, 'MP 1.3.82.0'))
+(Field 'state').Text = '오류 문구나 증상 일부를 입력하세요.'
+(Field 'errorSearch').Text = 'cygiconv'
+[void](Invoke-Form 'ShowStep' @([int]6)); Shot '10-errors.png'
+(Field 'errorSearch').Text = ''
+
 # Status strip close-ups: all good, and the usual problems.
 $strip = (Field 'stLink').Parent
 # Crop to the visible items (up to the refresh link) so the strip's empty right side is left out.

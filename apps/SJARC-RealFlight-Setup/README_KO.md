@@ -11,6 +11,9 @@ v0.2.3 (2026-10-15): 음성 현장에서 찾은 원인을 반영했습니다.
 • 5단계의 [SITL 시작] 버튼을 없앴습니다. SITL은 Mission Planner Simulation 탭(Model = flightaxis, Skip Download)
   한 가지로 켭니다. 두 방법이 섞이면 연결이 꼬였습니다.
 • 진단의 "18083 짧은 연결이 많다" 경고를 고쳤습니다. FlightAxis는 원래 주고받을 때마다 연결을 새로 맺습니다.
+• 왼쪽에 '오류별 해결 방법' 탭을 넣었습니다. 오류 창의 문구나 증상으로 검색하면 원인과 해결 순서가 나옵니다.
+• Mission Planner 1.3.82로 처음 SITL을 받는 PC에서 'cygiconv-2.dll이 없어…' 오류가 납니다(1.3.82는 보조 파일 2개를
+  받지 않음, 2026-10 이천 현장). 해결 방법은 '오류별 해결 방법' 탭 맨 위에 있습니다.
 
 v0.2.2 (2026-10-08): Pioneer·Striver의 RealFlight SITL 파라미터(*_RF_SITL.param)를 도우미가 직접 만듭니다.
 모델 준비 때 받아 온 제조사 원본에 RealFlight용 변경만 더해 문서\RealFlight 9\.SJARC\Parameters에 둡니다.

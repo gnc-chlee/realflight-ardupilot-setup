@@ -162,11 +162,19 @@ SITL 연결 중 RealFlight가 "응답 없음"이 되거나, 처음 설정한 뒤
 
 초기화는 파일을 지우지 않고 백업 이름으로 옮기므로 언제든 되돌릴 수 있습니다.
 
+## 오류별 해결 방법
+
+<img src="docs/guide/img/10-errors.png" width="720" alt="오류별 해결 방법 화면">
+
+도우미 왼쪽의 **오류별 해결 방법** 탭에서 오류 창의 문구나 증상 일부(예: `cygiconv`, `응답 없음`, `PANIC`)를 입력하면,
+현장에서 확인한 원인과 해결 순서가 나옵니다. 내용은 [ERRORS_KO.txt](apps/SJARC-RealFlight-Setup/ERRORS_KO.txt)에 있습니다.
+
 ## 자주 나오는 문제
 
 | 증상 | 원인 | 해결 |
 |---|---|---|
 | 연결 직후 Mission Planner가 꺼짐 | Mission Planner 1.3.83 버그 | 1.3.82 설치, 업데이트는 '아니오' |
+| SITL을 켜면 "cygiconv-2.dll이 없어 코드 실행을 진행할 수 없습니다" | MP 1.3.82는 SITL 보조 파일 2개(cygiconv-2.dll, cygintl-8.dll)를 받지 않음 | [PlaneStable 폴더](https://firmware.ardupilot.org/Tools/MissionPlanner/sitl/PlaneStable/)에서 두 파일을 받아 `문서\Mission Planner\sitl`에 넣기 |
 | 연결 중 RealFlight "응답 없음", MP는 "no heartbeat packets received" | SITL이 붙는 도중 RF 자동 리셋(2초)이 겹침 | RF 끝내고 Automatic Reset Delay = 10 |
 | SITL 창에 `PANIC ... Location cannot be (0, 0, 0)` 후 종료 | 개발판 SITL | Simulation에서 Stable로 다시 받고 Skip Download 체크 |
 | SITL 창 제목에 "선택", RF와 MP가 같이 멈춤 | SITL 창 안을 클릭함 | Esc |
